@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Neuro-Interpreter: Context Decoder",
+  "version": "1.0.0",
+  "description": "Magical context decoder for WhatsApp, Instagram, and Messenger.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://web.whatsapp.com/*",
+    "https://www.instagram.com/*",
+    "https://www.messenger.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "chrome/background.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://web.whatsapp.com/*",
+        "https://www.instagram.com/*",
+        "https://www.messenger.com/*"
+      ],
+      "js": ["chrome/content.tsx"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Neuro-Interpreter Settings"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
