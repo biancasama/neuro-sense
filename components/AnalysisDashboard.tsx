@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AnalysisResult, RiskLevel } from '../types';
-import { Check, Copy, AlertTriangle, ShieldCheck, Zap, Pencil, Trash2, Plus, X, Save } from 'lucide-react';
+import { Check, Copy, AlertTriangle, ShieldCheck, Zap, Pencil, Trash2, Plus, X, Save, BrainCircuit } from 'lucide-react';
 import { VibeIllustration, TranslationIllustration, CoachIllustration } from './Illustrations';
 
 interface Props {
@@ -75,9 +75,9 @@ const AnalysisDashboard: React.FC<Props> = ({ result }) => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="w-full space-y-6">
       
-      {/* Grid Layout */}
+      {/* Top Grid: Vibe & Confidence */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Card 1: Vibe Check */}
@@ -87,7 +87,6 @@ const AnalysisDashboard: React.FC<Props> = ({ result }) => {
               <VibeIllustration className="w-24 h-24" />
            </div>
            
-           {/* COGA Guidance: Avoid All-Caps. Use Sentence Case/Bold for headers. */}
            <h3 className="text-sm font-bold mb-4 opacity-70 flex items-center gap-2">
              {theme.icon} Vibe check
            </h3>
@@ -105,28 +104,54 @@ const AnalysisDashboard: React.FC<Props> = ({ result }) => {
            </div>
         </div>
 
-        {/* Card 2: Literal Translation */}
-        <div className="col-span-1 bg-white rounded-3xl p-6 border border-cream-300 shadow-sm relative overflow-hidden">
-          <div className="absolute top-2 right-2 text-sage-200 pointer-events-none">
-             <TranslationIllustration className="w-20 h-20" />
+        {/* Card 2: AI Reasoning & Confidence */}
+        <div className="col-span-1 bg-white rounded-3xl p-6 border border-cream-300 shadow-sm relative overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+             <h3 className="text-sm text-sage-500 font-bold flex items-center gap-2">
+                <BrainCircuit size={18} />
+                AI Analysis
+             </h3>
+             <div className="flex items-center gap-2 text-xs font-semibold bg-sage-50 px-2 py-1 rounded text-sage-600 border border-sage-100">
+               <span>Confidence: {result.confidenceScore}%</span>
+             </div>
           </div>
 
-          <h3 className="text-sm text-sage-500 font-bold mb-4 flex items-center gap-2 relative z-10">
-            Literal translation
-          </h3>
-          <ul className="space-y-3 relative z-10">
-            {result.translation.map((point, idx) => (
-              <li key={idx} className="flex items-start gap-3 text-sage-800 leading-relaxed">
-                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-sage-400 flex-shrink-0" />
-                <span>{point}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="w-full bg-cream-100 h-2 rounded-full overflow-hidden mb-4">
+             <div 
+               className="h-full bg-sage-500 transition-all duration-1000 rounded-full" 
+               style={{ width: `${result.confidenceScore}%` }}
+             ></div>
+          </div>
+          
+          <div className="flex-grow">
+            <p className="text-sage-800 text-sm leading-relaxed italic border-l-2 border-sage-200 pl-3">
+              "{result.reasoning}"
+            </p>
+          </div>
         </div>
 
       </div>
 
-      {/* Card 3: Reply Coach */}
+      {/* Literal Translation */}
+      <div className="bg-white rounded-3xl p-6 border border-cream-300 shadow-sm relative overflow-hidden">
+        <div className="absolute top-2 right-2 text-sage-200 pointer-events-none">
+            <TranslationIllustration className="w-20 h-20" />
+        </div>
+
+        <h3 className="text-sm text-sage-500 font-bold mb-4 flex items-center gap-2 relative z-10">
+          Literal translation
+        </h3>
+        <ul className="space-y-3 relative z-10">
+          {result.translation.map((point, idx) => (
+            <li key={idx} className="flex items-start gap-3 text-sage-800 leading-relaxed">
+              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-sage-400 flex-shrink-0" />
+              <span>{point}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Reply Coach */}
       <div className="bg-white rounded-3xl p-6 md:p-8 border border-cream-300 shadow-sm relative overflow-hidden">
         <div className="absolute top-4 right-8 text-sage-100 pointer-events-none hidden md:block">
             <CoachIllustration className="w-24 h-24" />
@@ -146,7 +171,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result }) => {
           </button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
           {replies.map((reply) => (
             <EditableReplyCard 
               key={reply.id} 

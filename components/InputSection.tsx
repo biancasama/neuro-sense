@@ -45,20 +45,13 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing }) =
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white rounded-3xl shadow-sm border border-cream-300 overflow-hidden transition-all duration-300 hover:shadow-md">
-      <div className="p-6 space-y-4">
+    <div className="w-full space-y-4">
         
-        {/* Header Prompt */}
-        <div className="flex items-center gap-2 mb-2 text-sage-700">
-          <FileText size={20} aria-hidden="true" />
-          <h2 className="font-medium text-lg">What needs decoding?</h2>
-        </div>
-
         {/* Text Area */}
         <label htmlFor="message-input" className="sr-only">Paste your text message</label>
         <textarea
           id="message-input"
-          className="w-full h-32 p-4 rounded-xl bg-sage-50 text-sage-900 placeholder-sage-400 border border-transparent focus:border-sage-300 focus:ring-2 focus:ring-sage-200 resize-none text-base transition-all outline-none"
+          className="w-full h-48 p-4 rounded-xl bg-sage-50 text-sage-900 placeholder-sage-400 border border-transparent focus:border-sage-300 focus:ring-2 focus:ring-sage-200 resize-none text-base transition-all outline-none"
           placeholder="Paste the confusing text message here..."
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -133,7 +126,6 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing }) =
           )}
         </button>
 
-      </div>
     </div>
   );
 };

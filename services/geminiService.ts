@@ -28,6 +28,14 @@ const analysisSchema: Schema = {
       enum: ["Safe", "Caution", "Conflict"],
       description: "The emotional safety level of the message."
     },
+    confidenceScore: {
+      type: Type.INTEGER,
+      description: "A number from 0-100 indicating how confident you are in this interpretation based on the available context."
+    },
+    reasoning: {
+      type: Type.STRING,
+      description: "A 1-2 sentence explanation of the specific cues (punctuation, word choice, emoji) that led to this conclusion."
+    },
     translation: {
       type: Type.ARRAY,
       items: { type: Type.STRING },
@@ -43,7 +51,7 @@ const analysisSchema: Schema = {
       required: ["professional", "friendly", "firm"]
     }
   },
-  required: ["vibeLabel", "riskLevel", "translation", "replies"]
+  required: ["vibeLabel", "riskLevel", "confidenceScore", "reasoning", "translation", "replies"]
 };
 
 export const analyzeMessageContext = async (
@@ -83,14 +91,16 @@ export const analyzeMessageContext = async (
     You are an expert empathetic communication assistant for neurodivergent individuals (Autism/ADHD). 
     Your goal is to decode hidden meanings, tones, and intent in text messages.
     
-    1. Identify the "Vibe": Is it safe, a warning sign, or a conflict? Give it a one-word label.
-    2. Translate: Explain literally what the person means. Assume the user struggles with subtext, sarcasm, or passive-aggression. Be direct but kind.
-    3. Coach: Provide 3 draft replies ranging from professional to firm.
+    1. Deeply analyze the text for subtle cues (punctuation, capitalization, emoji usage, phrasing).
+    2. Identify the "Vibe": Is it safe, a warning sign, or a conflict?
+    3. Determine a Confidence Score: How sure are you? Ambiguous texts should have lower scores.
+    4. Translate: Explain literally what the person means.
+    5. Coach: Provide 3 draft replies.
   `;
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-pro-preview",
       contents: {
         role: "user",
         parts: parts
@@ -98,7 +108,8 @@ export const analyzeMessageContext = async (
       config: {
         systemInstruction: systemInstruction,
         responseMimeType: "application/json",
-        responseSchema: analysisSchema
+        responseSchema: analysisSchema,
+        thinkingConfig: { thinkingBudget: 2048 } // Allow "Deep Think"
       }
     });
 
