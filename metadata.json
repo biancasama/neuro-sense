@@ -1,0 +1,5 @@
+{
+  "name": "Neuro-Interpreter",
+  "description": "An assistive tool to help decode tone, intent, and hidden meaning in text messages for neurodivergent users.",
+  "requestFramePermissions": []
+}
