@@ -47,6 +47,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t }
   const audioChunksRef = useRef<Blob[]>([]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -54,6 +55,25 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t }
       setImageFile(file);
       const url = URL.createObjectURL(file);
       setImagePreview(url);
+    }
+  };
+
+  const handleAudioFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const base64Audio = await fileToGenerativePart(file);
+        setAudioData({
+          base64: base64Audio,
+          mimeType: file.type
+        });
+      } catch (err) {
+        console.error("Failed to read audio file", err);
+      }
+    }
+    // Allow re-selection
+    if (audioInputRef.current) {
+      audioInputRef.current.value = '';
     }
   };
 
@@ -69,7 +89,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t }
     setAudioData(null);
   };
 
-  // --- Voice Logic ---
+  // --- Voice Logic (Microphone) ---
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -228,61 +248,90 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t }
           </div>
 
           {/* Attachments Area */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             
-            {/* Audio Attachment Indicator */}
-            {audioData && (
-              <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-xl animate-in fade-in slide-in-from-bottom-2">
-                 <div className="flex items-center gap-3">
-                   <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-                     <Music size={16} />
-                   </div>
-                   <div>
-                     <p className="text-sm font-semibold text-emerald-900">Audio Recorded</p>
-                     <p className="text-xs text-emerald-600">Attached for vocal tone analysis</p>
-                   </div>
-                 </div>
-                 <button 
-                  onClick={removeAudio}
-                  className="p-1.5 text-emerald-400 hover:text-red-500 hover:bg-white rounded-full transition-all"
-                  aria-label="Remove audio"
-                 >
-                   <X size={16} />
-                 </button>
+            {/* Active Attachments Display */}
+            {(audioData || imagePreview) && (
+              <div className="space-y-3">
+                {audioData && (
+                  <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-xl animate-in fade-in slide-in-from-bottom-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                        <Music size={16} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-emerald-900">Audio Recorded</p>
+                        <p className="text-xs text-emerald-600">Attached for vocal tone analysis</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={removeAudio}
+                      className="p-1.5 text-emerald-400 hover:text-red-500 hover:bg-white rounded-full transition-all"
+                      aria-label={t.removeAudio}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+
+                {imagePreview && (
+                  <div className="relative w-full h-40 bg-stone-100 rounded-xl overflow-hidden border border-stone-300 shadow-sm group animate-in fade-in slide-in-from-bottom-2">
+                    <img src={imagePreview} alt="Uploaded chat screenshot" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                    <button
+                      onClick={removeImage}
+                      className="absolute top-2 right-2 p-1.5 bg-white/90 border border-stone-200 rounded-full text-stone-600 hover:text-red-600 hover:bg-white transition-all shadow-sm"
+                      disabled={isAnalyzing}
+                      aria-label={t.removeImage}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Image Upload Area */}
-            {imagePreview ? (
-              <div className="relative w-full h-40 bg-stone-100 rounded-xl overflow-hidden border border-stone-300 shadow-sm group">
-                <img src={imagePreview} alt="Uploaded chat screenshot" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-                <button
-                  onClick={removeImage}
-                  className="absolute top-2 right-2 p-1.5 bg-white/90 border border-stone-200 rounded-full text-stone-600 hover:text-red-600 hover:bg-white transition-all shadow-sm"
-                  disabled={isAnalyzing}
-                  aria-label={t.removeImage}
-                >
-                  <X size={16} />
-                </button>
+            {/* Attachment Buttons - Show if slot available */}
+            {(!audioData || !imagePreview) && (
+              <div className="flex gap-3">
+                {!imagePreview && (
+                   <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isAnalyzing}
+                    className="flex-1 py-3 px-4 rounded-xl border border-dashed border-stone-300 text-stone-500 hover:text-stone-700 hover:border-stone-400 hover:bg-stone-50 transition-all flex items-center justify-center gap-2 text-sm font-medium"
+                  >
+                    <ImageIcon size={18} />
+                    <span>{t.attach}</span>
+                  </button>
+                )}
+                {!audioData && (
+                  <button 
+                    onClick={() => audioInputRef.current?.click()}
+                    disabled={isAnalyzing}
+                    className="flex-1 py-3 px-4 rounded-xl border border-dashed border-stone-300 text-stone-500 hover:text-stone-700 hover:border-stone-400 hover:bg-stone-50 transition-all flex items-center justify-center gap-2 text-sm font-medium"
+                  >
+                    <Music size={18} />
+                    <span>{t.attachAudio}</span>
+                  </button>
+                )}
               </div>
-            ) : (
-              <button 
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isAnalyzing}
-                className="w-full py-3 px-4 rounded-xl border border-dashed border-stone-300 text-stone-500 hover:text-stone-700 hover:border-stone-400 hover:bg-stone-50 transition-all flex items-center justify-center gap-2 text-sm font-medium"
-              >
-                <ImageIcon size={18} />
-                <span>{t.attach}</span>
-              </button>
             )}
             
           </div>
 
+          {/* Hidden File Inputs */}
           <input
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
             accept="image/*"
+            className="hidden"
+            aria-hidden="true"
+          />
+           <input
+            type="file"
+            ref={audioInputRef}
+            onChange={handleAudioFileChange}
+            accept="audio/*"
             className="hidden"
             aria-hidden="true"
           />

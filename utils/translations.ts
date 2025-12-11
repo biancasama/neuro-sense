@@ -15,7 +15,8 @@ export const translations: Record<Language, any> = {
     error: "We couldn't decode that message right now. Please try again.",
     inputPlaceholder: "Dear Journal, today they said...",
     voicePlaceholder: "Listening...",
-    attach: "Attach Screenshot (Optional)",
+    attach: "Attach Screenshot",
+    attachAudio: "Attach Audio",
     deepContext: "Activate Deep Context",
     analyze: "Analyze Message",
     consulting: "Consulting...",
@@ -34,7 +35,9 @@ export const translations: Record<Language, any> = {
     voiceAccent: "Voice Origin / Accent",
     close: "Close",
     stop: "Stop",
-    voiceDictation: "Dictate Message"
+    voiceDictation: "Dictate Message",
+    removeImage: "Remove Image",
+    removeAudio: "Remove Audio"
   },
   es: {
     subtitle: "Decodificador de Contexto Mágico",
@@ -50,7 +53,8 @@ export const translations: Record<Language, any> = {
     error: "No pudimos decodificar ese mensaje. Inténtalo de nuevo.",
     inputPlaceholder: "Querido diario, hoy dijeron...",
     voicePlaceholder: "Escuchando...",
-    attach: "Adjuntar Captura (Opcional)",
+    attach: "Adjuntar Captura",
+    attachAudio: "Adjuntar Audio",
     deepContext: "Activar Contexto Profundo",
     analyze: "Analizar Mensaje",
     consulting: "Consultando...",
@@ -69,7 +73,9 @@ export const translations: Record<Language, any> = {
     voiceAccent: "Acento de Voz",
     close: "Cerrar",
     stop: "Parar",
-    voiceDictation: "Dictar Mensaje"
+    voiceDictation: "Dictar Mensaje",
+    removeImage: "Eliminar Imagen",
+    removeAudio: "Eliminar Audio"
   },
   fr: {
     subtitle: "Décodeur de Contexte Magique",
@@ -85,7 +91,8 @@ export const translations: Record<Language, any> = {
     error: "Nous n'avons pas pu décoder ce message. Veuillez réessayer.",
     inputPlaceholder: "Cher journal, aujourd'hui ils ont dit...",
     voicePlaceholder: "J'écoute...",
-    attach: "Joindre une capture (Optionnel)",
+    attach: "Joindre Capture",
+    attachAudio: "Joindre Audio",
     deepContext: "Activer Contexte Profond",
     analyze: "Analyser le Message",
     consulting: "Consultation...",
@@ -104,7 +111,9 @@ export const translations: Record<Language, any> = {
     voiceAccent: "Accent / Origine",
     close: "Fermer",
     stop: "Arrêter",
-    voiceDictation: "Dicter le message"
+    voiceDictation: "Dicter le message",
+    removeImage: "Supprimer l'image",
+    removeAudio: "Supprimer l'audio"
   },
   de: {
     subtitle: "Magischer Kontext-Decoder",
@@ -120,7 +129,8 @@ export const translations: Record<Language, any> = {
     error: "Wir konnten diese Nachricht nicht dekodieren. Bitte versuchen Sie es erneut.",
     inputPlaceholder: "Liebes Tagebuch, heute sagten sie...",
     voicePlaceholder: "Höre zu...",
-    attach: "Screenshot anhängen (Optional)",
+    attach: "Screenshot anhängen",
+    attachAudio: "Audio anhängen",
     deepContext: "Tiefenkontext aktivieren",
     analyze: "Nachricht analysieren",
     consulting: "Beratschlagen...",
@@ -139,7 +149,9 @@ export const translations: Record<Language, any> = {
     voiceAccent: "Akzent / Herkunft",
     close: "Schließen",
     stop: "Stopp",
-    voiceDictation: "Nachricht diktieren"
+    voiceDictation: "Nachricht diktieren",
+    removeImage: "Bild entfernen",
+    removeAudio: "Audio entfernen"
   },
   it: {
     subtitle: "Decodificatore di Contesto Magico",
@@ -155,7 +167,8 @@ export const translations: Record<Language, any> = {
     error: "Non siamo riusciti a decodificare il messaggio. Riprova.",
     inputPlaceholder: "Caro diario, oggi hanno detto...",
     voicePlaceholder: "Ascolto...",
-    attach: "Allega Screenshot (Opzionale)",
+    attach: "Allega Screenshot",
+    attachAudio: "Allega Audio",
     deepContext: "Attiva Contesto Profondo",
     analyze: "Analizza Messaggio",
     consulting: "Consultazione...",
@@ -174,7 +187,9 @@ export const translations: Record<Language, any> = {
     voiceAccent: "Accento / Origine",
     close: "Chiudi",
     stop: "Stop",
-    voiceDictation: "Dettare Messaggio"
+    voiceDictation: "Dettare Messaggio",
+    removeImage: "Rimuovi Immagine",
+    removeAudio: "Rimuovi Audio"
   },
   pt: {
     subtitle: "Decodificador de Contexto Mágico",
@@ -190,7 +205,8 @@ export const translations: Record<Language, any> = {
     error: "Não conseguimos decodificar essa mensagem agora. Tente novamente.",
     inputPlaceholder: "Querido diário, hoje disseram...",
     voicePlaceholder: "Ouvindo...",
-    attach: "Anexar Captura (Opcional)",
+    attach: "Anexar Captura",
+    attachAudio: "Anexar Áudio",
     deepContext: "Ativar Contexto Profundo",
     analyze: "Analisar Mensagem",
     consulting: "Consultando...",
@@ -209,7 +225,9 @@ export const translations: Record<Language, any> = {
     voiceAccent: "Sotaque / Origem",
     close: "Fechar",
     stop: "Parar",
-    voiceDictation: "Ditar Mensagem"
+    voiceDictation: "Ditar Mensagem",
+    removeImage: "Remover Imagem",
+    removeAudio: "Remover Áudio"
   },
   ja: {
     subtitle: "魔法の文脈デコーダー",
@@ -225,7 +243,8 @@ export const translations: Record<Language, any> = {
     error: "現在、そのメッセージをデコードできませんでした。もう一度お試しください。",
     inputPlaceholder: "日記へ、今日彼らはこう言いました...",
     voicePlaceholder: "聞いています...",
-    attach: "画像を添付（任意）",
+    attach: "画像を添付",
+    attachAudio: "音声を添付",
     deepContext: "深いコンテキストを有効化",
     analyze: "メッセージを分析",
     consulting: "相談中...",
@@ -244,6 +263,8 @@ export const translations: Record<Language, any> = {
     voiceAccent: "アクセント / 出身",
     close: "閉じる",
     stop: "停止",
-    voiceDictation: "メッセージを口述"
+    voiceDictation: "メッセージを口述",
+    removeImage: "画像を削除",
+    removeAudio: "音声を削除"
   }
 };
