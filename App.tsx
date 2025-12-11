@@ -3,16 +3,34 @@ import Header from './components/Header';
 import InputSection from './components/InputSection';
 import AnalysisDashboard from './components/AnalysisDashboard';
 import PanicButton from './components/PanicButton';
-import { AnalysisResult } from './types';
+import { AnalysisResult, Language } from './types';
 import { analyzeMessageContext } from './services/geminiService';
 import { AlertCircle, ArrowLeft, Chrome, Download, X } from 'lucide-react';
 import { KeyIllustration } from './components/Illustrations';
+import { translations } from './utils/translations';
 
 const App: React.FC = () => {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showExtensionModal, setShowExtensionModal] = useState(false);
+  const [language, setLanguage] = useState<Language>('en');
+
+  // Helper to get current translations
+  const t = translations[language];
+
+  // Helper to map language code to full name for AI prompt
+  const getLanguageName = (code: Language) => {
+    switch (code) {
+      case 'es': return 'Spanish';
+      case 'fr': return 'French';
+      case 'de': return 'German';
+      case 'it': return 'Italian';
+      case 'pt': return 'Portuguese';
+      case 'ja': return 'Japanese';
+      default: return 'English';
+    }
+  };
 
   const handleAnalyze = async (text: string, useDeepContext: boolean, imageBase64?: string, mimeType?: string) => {
     setIsAnalyzing(true);
@@ -20,10 +38,11 @@ const App: React.FC = () => {
     setResult(null);
 
     try {
-      const data = await analyzeMessageContext(text, useDeepContext, imageBase64, mimeType);
+      const targetLang = getLanguageName(language);
+      const data = await analyzeMessageContext(text, useDeepContext, targetLang, imageBase64, mimeType);
       setResult(data);
     } catch (err: any) {
-      setError("We couldn't decode that message right now. Please try again or check your API key.");
+      setError(t.error);
       console.error(err);
     } finally {
       setIsAnalyzing(false);
@@ -37,7 +56,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-50 via-green-50 to-stone-100 font-sans pb-12 relative text-left flex flex-col">
-      <Header />
+      <Header language={language} setLanguage={setLanguage} t={t} />
 
       <main className="flex-grow container mx-auto px-4 md:px-8 py-4 flex flex-col items-center justify-start md:justify-center">
         
@@ -49,9 +68,9 @@ const App: React.FC = () => {
             {/* Left Column: The "Messy Mind" Input */}
             <div className="p-8 md:p-12 flex flex-col relative">
                <div className="mb-6">
-                 <h2 className="text-3xl font-bold text-stone-800 mb-2">The Source</h2>
+                 <h2 className="text-3xl font-bold text-stone-800 mb-2">{t.sourceTitle}</h2>
                  <p className="text-stone-600 leading-relaxed mb-4">
-                   Paste the confusing text or upload a screenshot. Let's make sense of this together.
+                   {t.sourceDesc}
                  </p>
 
                  {/* Chrome Extension Promo */}
@@ -64,17 +83,17 @@ const App: React.FC = () => {
                     </div>
                     <div className="flex-grow">
                       <h3 className="font-bold text-stone-800 text-sm flex items-center gap-2">
-                        Get the Chrome Extension
+                        {t.extensionTitle}
                         <span className="bg-forest/10 text-forest text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wide">New</span>
                       </h3>
-                      <p className="text-xs text-stone-500 mt-0.5">Decode WhatsApp & Messenger automatically in your browser.</p>
+                      <p className="text-xs text-stone-500 mt-0.5">{t.extensionDesc}</p>
                     </div>
                     <Download size={18} className="text-stone-400 group-hover:text-forest transition-colors" />
                  </button>
                </div>
                
                <div className="flex-grow">
-                 <InputSection onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
+                 <InputSection onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} t={t} />
                </div>
             </div>
 
@@ -90,7 +109,7 @@ const App: React.FC = () => {
                   onClick={handleReset}
                   className="flex items-center gap-2 text-sm font-semibold text-stone-500 hover:text-stone-800 transition-colors mb-6 lg:hidden"
                 >
-                  <ArrowLeft size={16} /> Back to Input
+                  <ArrowLeft size={16} /> {t.back}
                 </button>
               )}
 
@@ -104,12 +123,12 @@ const App: React.FC = () => {
               {isAnalyzing ? (
                  <div className="flex-grow flex flex-col items-center justify-center text-stone-400 space-y-6 animate-pulse">
                     <KeyIllustration className="w-40 h-40 opacity-50 grayscale animate-bounce" />
-                    <p className="text-xl font-medium font-serif italic text-stone-500">Unlocking meaning...</p>
+                    <p className="text-xl font-medium font-serif italic text-stone-500">{t.unlocking}</p>
                  </div>
               ) : result ? (
                 <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 h-full">
-                   <h2 className="text-3xl font-bold text-stone-800 mb-6 hidden lg:block">The Clarity</h2>
-                   <AnalysisDashboard result={result} />
+                   <h2 className="text-3xl font-bold text-stone-800 mb-6 hidden lg:block">{t.clarityTitle}</h2>
+                   <AnalysisDashboard result={result} t={t} />
                 </div>
               ) : (
                 /* Empty State / Magical Anchor */
@@ -117,9 +136,9 @@ const App: React.FC = () => {
                    <div className="w-64 h-64 mb-8 text-stone-300 animate-float">
                        <KeyIllustration className="w-full h-full" />
                    </div>
-                   <h3 className="text-2xl font-semibold text-stone-700 mb-2">Ready to Unlock?</h3>
+                   <h3 className="text-2xl font-semibold text-stone-700 mb-2">{t.readyTitle}</h3>
                    <p className="text-stone-500 max-w-xs mx-auto">
-                     The interpretation will appear here, clearly written and easy to process.
+                     {t.readyDesc}
                    </p>
                 </div>
               )}
@@ -130,7 +149,7 @@ const App: React.FC = () => {
 
       </main>
 
-      <PanicButton />
+      <PanicButton t={t} />
 
       {/* Extension Installation Modal */}
       {showExtensionModal && (

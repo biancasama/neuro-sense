@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { LifeBuoy, X, Check, Copy } from 'lucide-react';
 import { PlantIllustration } from './Illustrations';
 
-const PanicButton: React.FC = () => {
+interface PanicProps {
+  t: any;
+}
+
+const PanicButton: React.FC<PanicProps> = ({ t }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const panicScript = "I've received your message and I want to give it the attention it deserves. I need a little time to process it properly, but I will get back to you as soon as I can. Thank you for your patience.";
+  const panicScript = t.panicScript;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(panicScript);
@@ -23,7 +27,7 @@ const PanicButton: React.FC = () => {
           className="bg-cream-100 hover:bg-cream-200 text-sage-600 border border-sage-200 shadow-md hover:shadow-lg rounded-full px-6 py-3 flex items-center gap-2 transition-all font-medium text-sm group focus:ring-2 focus:ring-sage-400 focus:outline-none"
         >
           <LifeBuoy size={20} className="group-hover:scale-110 transition-transform text-sage-500" />
-          <span>Help, I'm overwhelmed</span>
+          <span>{t.panicBtn}</span>
         </button>
       </div>
 
@@ -48,9 +52,9 @@ const PanicButton: React.FC = () => {
               <div className="flex justify-center mb-4 text-sage-600">
                 <PlantIllustration className="w-24 h-24" />
               </div>
-              <h3 className="text-xl font-bold text-sage-900 mb-2">Deep Breath. You're okay.</h3>
+              <h3 className="text-xl font-bold text-sage-900 mb-2">{t.panicTitle}</h3>
               <p className="text-sage-600 text-sm">
-                If you feel overwhelmed, it is perfectly okay to pause the conversation. Use this script to buy yourself time.
+                {t.panicDesc}
               </p>
             </div>
 
@@ -62,7 +66,7 @@ const PanicButton: React.FC = () => {
                 className="mt-4 w-full bg-white border border-sage-200 rounded-xl py-2.5 flex items-center justify-center gap-2 text-sage-700 font-medium hover:bg-sage-50 hover:border-sage-300 transition-all shadow-sm focus:ring-2 focus:ring-sage-300 focus:outline-none"
               >
                 {copied ? <Check size={18} className="text-emerald-600" /> : <Copy size={18} />}
-                {copied ? "Copied to Clipboard" : "Copy Script"}
+                {copied ? t.copied : t.copy}
               </button>
             </div>
             
@@ -71,7 +75,7 @@ const PanicButton: React.FC = () => {
                 onClick={() => setIsOpen(false)}
                 className="text-sage-400 hover:text-sage-600 text-sm font-medium transition-colors focus:ring-2 focus:ring-sage-200 focus:outline-none rounded-lg px-2"
                >
-                 Close
+                 {t.close}
                </button>
             </div>
 

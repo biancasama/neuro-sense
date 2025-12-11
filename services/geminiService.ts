@@ -2,7 +2,7 @@ import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { AnalysisResult, RiskLevel } from "../types";
 
 // Helper to convert file to base64
-export const fileToGenerativePart = async (file: File): Promise<string> => {
+export const fileToGenerativePart = async (file: File | Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -45,9 +45,47 @@ const analysisSchema: Schema = {
   required: ["riskLevel", "confidenceScore", "literalMeaning", "emotionalSubtext", "suggestedResponse"]
 };
 
+export const transcribeAudio = async (
+  audioBase64: string, 
+  mimeType: string, 
+  accent: string
+): Promise<string> => {
+  if (!process.env.API_KEY) {
+    throw new Error("API Key is missing.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash', // Flash is excellent for fast audio tasks
+      contents: {
+        role: "user",
+        parts: [
+          {
+            inlineData: {
+              data: audioBase64,
+              mimeType: mimeType
+            }
+          },
+          {
+            text: `Transcribe the speech in this audio to text. The speaker is speaking English with a ${accent} accent/origin. Return ONLY the transcribed text, with no additional commentary.`
+          }
+        ]
+      }
+    });
+
+    return response.text || "";
+  } catch (error) {
+    console.error("Transcription Error:", error);
+    throw new Error("Failed to transcribe audio.");
+  }
+};
+
 export const analyzeMessageContext = async (
   text: string, 
   useDeepContext: boolean,
+  targetLanguage: string = 'English',
   imageBase64?: string,
   mimeType: string = "image/png"
 ): Promise<AnalysisResult> => {
@@ -71,7 +109,7 @@ export const analyzeMessageContext = async (
 
   if (text) {
     parts.push({
-      text: `Analyze this text message/chat: "${text}"`
+      text: `Analyze this text message/chat: "${text}". \n\nIMPORTANT: Provide the analysis (Literal Meaning, Emotional Subtext, and Suggested Responses) in ${targetLanguage} language.`
     });
   }
 
@@ -85,6 +123,9 @@ export const analyzeMessageContext = async (
     1. Literal Meaning: What the words say directly.
     2. Emotional Subtext: The hidden tone, intent, or feeling.
     3. Suggested Response: Options for replying.
+
+    OUTPUT LANGUAGE: ${targetLanguage}
+    Ensure all string fields in the JSON response are written in ${targetLanguage}, regardless of the input message language.
 
     CRITICAL INTERPRETATION RULE:
     - If emojis appear "on" a message bubble or are described as reactions (especially in screenshots), interpret them as the RECEIVER'S reaction to the Sender, NOT as part of the Sender's message.

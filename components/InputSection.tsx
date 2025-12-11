@@ -1,17 +1,39 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X, Image as ImageIcon, Loader2, BrainCircuit, Sparkles } from 'lucide-react';
-import { fileToGenerativePart } from '../services/geminiService';
+import { Upload, X, Image as ImageIcon, Loader2, BrainCircuit, Sparkles, Mic, Square, Globe } from 'lucide-react';
+import { fileToGenerativePart, transcribeAudio } from '../services/geminiService';
 
 interface InputSectionProps {
   onAnalyze: (text: string, useDeepContext: boolean, imageBase64?: string, mimeType?: string) => void;
   isAnalyzing: boolean;
+  t: any;
 }
 
-const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing }) => {
+const ACCENTS = [
+  { label: "Neutral (US/UK)", value: "Neutral" },
+  { label: "English (French Accent)", value: "French" },
+  { label: "English (Italian Accent)", value: "Italian" },
+  { label: "English (Spanish Accent)", value: "Spanish" },
+  { label: "English (German Accent)", value: "German" },
+  { label: "English (Indian Accent)", value: "Indian" },
+  { label: "English (East Asian Accent)", value: "East Asian" },
+  { label: "English (Middle Eastern Accent)", value: "Middle Eastern" },
+  { label: "English (Russian Accent)", value: "Russian" },
+  { label: "English (Australian)", value: "Australian" }
+];
+
+const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t }) => {
   const [text, setText] = useState('');
   const [useDeepContext, setUseDeepContext] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  
+  // Voice Input State
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [selectedAccent, setSelectedAccent] = useState("Neutral");
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,6 +50,62 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing }) =
     setImagePreview(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  // --- Voice Logic ---
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+      const mediaRecorder = new MediaRecorder(stream, { mimeType });
+      
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+        await handleTranscription(audioBlob, mimeType);
+        
+        // Stop all tracks to release mic
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Error accessing microphone:", err);
+      alert("Could not access microphone. Please allow permissions.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      setIsTranscribing(true);
+    }
+  };
+
+  const handleTranscription = async (audioBlob: Blob, mimeType: string) => {
+    try {
+      const base64Audio = await fileToGenerativePart(audioBlob);
+      const transcribedText = await transcribeAudio(base64Audio, mimeType, selectedAccent);
+      
+      setText(prev => {
+        const spacer = prev.length > 0 && !prev.endsWith(' ') ? ' ' : '';
+        return prev + spacer + transcribedText;
+      });
+    } catch (error) {
+      console.error("Transcription failed", error);
+    } finally {
+      setIsTranscribing(false);
     }
   };
 
@@ -49,16 +127,67 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing }) =
     <div className="h-full flex flex-col">
         
         <div className="flex-grow space-y-6">
-          {/* Lined Paper Text Input */}
+          
+          {/* Input Controls Container */}
           <div className="relative group">
             <label htmlFor="message-input" className="sr-only">
               Paste Message Text
             </label>
+            
+            {/* Toolbar overlay for Voice Settings */}
+            <div className="absolute top-2 right-2 z-20 flex items-center gap-2 bg-white/80 backdrop-blur-sm p-1.5 rounded-lg border border-stone-200 shadow-sm">
+               {/* Accent Selector */}
+               <div className="relative flex items-center group/accent">
+                 <Globe size={14} className="text-stone-400 ml-1.5" />
+                 <select 
+                    value={selectedAccent}
+                    onChange={(e) => setSelectedAccent(e.target.value)}
+                    disabled={isRecording || isTranscribing}
+                    className="bg-transparent text-xs font-medium text-stone-600 p-1.5 pr-6 outline-none cursor-pointer appearance-none w-32"
+                    title={t.voiceAccent}
+                 >
+                   {ACCENTS.map(acc => <option key={acc.value} value={acc.value}>{acc.label}</option>)}
+                 </select>
+                 <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                 </div>
+               </div>
+
+               {/* Divider */}
+               <div className="w-px h-4 bg-stone-300 mx-1"></div>
+
+               {/* Mic Button */}
+               {isRecording ? (
+                 <button
+                   onClick={stopRecording}
+                   className="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded-md border border-red-200 hover:bg-red-100 transition-all animate-pulse"
+                 >
+                   <Square size={14} fill="currentColor" />
+                   <span className="text-xs font-bold">{t.stop}</span>
+                 </button>
+               ) : (
+                 <button
+                   onClick={startRecording}
+                   disabled={isTranscribing}
+                   className="p-1.5 text-stone-500 hover:text-forest hover:bg-stone-100 rounded-md transition-colors relative"
+                   title={t.voiceDictation}
+                 >
+                   {isTranscribing ? <Loader2 size={16} className="animate-spin" /> : <Mic size={16} />}
+                 </button>
+               )}
+            </div>
+
+            {/* Gradient Top Shadow for depth */}
             <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-white/80 to-transparent pointer-events-none z-10 rounded-t-xl"></div>
+            
             <textarea
               id="message-input"
-              className="w-full h-64 p-6 rounded-xl bg-lined-paper text-stone-800 placeholder-stone-400 border border-stone-200 shadow-inner focus:border-forest/50 focus:ring-1 focus:ring-forest/20 resize-none text-lg transition-all outline-none"
-              placeholder="Dear Journal, today they said..."
+              className={`
+                w-full h-64 p-6 rounded-xl bg-lined-paper text-stone-800 placeholder-stone-400 
+                border transition-all resize-none text-lg outline-none
+                ${isRecording ? 'border-red-300 ring-2 ring-red-100' : 'border-stone-200 shadow-inner focus:border-forest/50 focus:ring-1 focus:ring-forest/20'}
+              `}
+              placeholder={isRecording ? t.voicePlaceholder : t.inputPlaceholder}
               value={text}
               onChange={(e) => setText(e.target.value)}
               disabled={isAnalyzing}
@@ -74,7 +203,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing }) =
                   onClick={removeImage}
                   className="absolute top-2 right-2 p-1.5 bg-white/90 border border-stone-200 rounded-full text-stone-600 hover:text-red-600 hover:bg-white transition-all shadow-sm"
                   disabled={isAnalyzing}
-                  aria-label="Remove image"
+                  aria-label={t.removeImage}
                 >
                   <X size={16} />
                 </button>
@@ -86,7 +215,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing }) =
                 className="w-full py-3 px-4 rounded-xl border border-dashed border-stone-300 text-stone-500 hover:text-stone-700 hover:border-stone-400 hover:bg-stone-50 transition-all flex items-center justify-center gap-2 text-sm font-medium"
               >
                 <ImageIcon size={18} />
-                <span>Attach Screenshot (Optional)</span>
+                <span>{t.attach}</span>
               </button>
             )}
           </div>
@@ -117,7 +246,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing }) =
                 <BrainCircuit size={16} />
               </div>
               <span className={`text-sm font-semibold ${useDeepContext ? 'text-green-800' : 'text-stone-500'}`}>
-                Activate Deep Context
+                {t.deepContext}
               </span>
               {useDeepContext && (
                 <span className="absolute -top-1 -right-1">
@@ -145,12 +274,12 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing }) =
             {isAnalyzing ? (
               <>
                 <Loader2 className="animate-spin" size={24} aria-hidden="true" />
-                <span>Consulting...</span>
+                <span>{t.consulting}</span>
               </>
             ) : (
               <>
                 <Sparkles size={22} className="group-hover:rotate-12 transition-transform" aria-hidden="true" />
-                <span>Analyze Message</span>
+                <span>{t.analyze}</span>
               </>
             )}
           </button>

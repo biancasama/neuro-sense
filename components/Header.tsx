@@ -1,4 +1,12 @@
 import React from 'react';
+import { Language } from '../types';
+import { Globe } from 'lucide-react';
+
+interface HeaderProps {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: any;
+}
 
 // Stylized brain logo with interconnected arrows matching the reference image
 const BrainLogo = ({ size = 48, className = "" }: { size?: number, className?: string }) => (
@@ -10,6 +18,7 @@ const BrainLogo = ({ size = 48, className = "" }: { size?: number, className?: s
     xmlns="http://www.w3.org/2000/svg" 
     className={className}
     aria-label="Neuro-Sense Logo"
+    role="img"
     strokeLinecap="round" 
     strokeLinejoin="round"
   >
@@ -50,22 +59,54 @@ const BrainLogo = ({ size = 48, className = "" }: { size?: number, className?: s
   </svg>
 );
 
-const Header: React.FC = () => {
+const Header: React.FC<HeaderProps> = ({ language, setLanguage, t }) => {
   return (
-    <header className="w-full py-8 px-4 flex items-center justify-center bg-transparent relative z-10">
-      <div className="flex items-center gap-5">
-        {/* Logo with no container */}
-        <BrainLogo size={84} className="drop-shadow-sm" />
+    <header className="w-full py-8 px-4 flex items-center justify-between md:justify-center bg-transparent relative z-10">
+      
+      {/* Centered Logo & Title */}
+      <div className="flex items-center gap-5 md:ml-20">
+        <BrainLogo size={84} className="drop-shadow-sm flex-shrink-0" />
         
         <div className="flex flex-col">
           <h1 className="text-3xl md:text-5xl font-extrabold text-stone-900 tracking-tight leading-tight">
             Neuro-Sense
           </h1>
           <p className="text-sm md:text-base text-stone-600 font-semibold tracking-wide mt-1">
-            Magical Context Decoder
+            {t.subtitle}
           </p>
         </div>
       </div>
+
+      {/* Language Selector (Absolute on Desktop, Flex on Mobile) */}
+      <div className="md:absolute md:right-8 md:top-8 flex items-center">
+        <div className="relative group">
+          <button className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/60 hover:bg-white border border-stone-200 shadow-sm transition-all text-stone-600 hover:text-stone-800">
+            <Globe size={18} />
+            <span className="uppercase font-bold text-xs">{language}</span>
+          </button>
+          
+          <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-xl shadow-lg border border-stone-100 overflow-hidden hidden group-hover:block z-50 animate-in fade-in zoom-in-95 duration-200">
+            {[
+              { code: 'en', label: 'English' },
+              { code: 'es', label: 'Español' },
+              { code: 'fr', label: 'Français' },
+              { code: 'de', label: 'Deutsch' },
+              { code: 'it', label: 'Italiano' },
+              { code: 'pt', label: 'Português' },
+              { code: 'ja', label: '日本語' }
+            ].map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => setLanguage(lang.code as Language)}
+                className={`w-full text-left px-4 py-2 text-sm hover:bg-stone-50 transition-colors ${language === lang.code ? 'font-bold text-forest bg-stone-50' : 'text-stone-600'}`}
+              >
+                {lang.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
     </header>
   );
 };

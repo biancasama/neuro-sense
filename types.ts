@@ -11,3 +11,5 @@ export interface AnalysisResult {
   emotionalSubtext: string;
   suggestedResponse: string[];
 }
+
+export type Language = 'en' | 'es' | 'fr' | 'de' | 'it' | 'pt' | 'ja';
