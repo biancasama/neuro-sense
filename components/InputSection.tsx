@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X, Image as ImageIcon, Loader2, ToggleRight, ToggleLeft, BrainCircuit } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Loader2, BrainCircuit, Sparkles } from 'lucide-react';
 import { fileToGenerativePart } from '../services/geminiService';
 
 interface InputSectionProps {
@@ -46,114 +46,115 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing }) =
   };
 
   return (
-    <div className="w-full space-y-6">
+    <div className="h-full flex flex-col">
         
-        {/* Text Input */}
-        <div className="space-y-2">
-          <label htmlFor="message-input" className="block text-sm font-semibold text-sage-800">
-            Paste Message Text
-          </label>
-          <textarea
-            id="message-input"
-            className="w-full h-48 p-4 rounded-xl bg-white text-sage-900 placeholder-sage-400 border-2 border-neutral-600 focus:border-sage-600 focus:ring-0 resize-none text-base leading-relaxed transition-all outline-none"
-            placeholder="e.g., 'Fine, do whatever you want.'"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            disabled={isAnalyzing}
-          />
-        </div>
+        <div className="flex-grow space-y-6">
+          {/* Lined Paper Text Input */}
+          <div className="relative group">
+            <label htmlFor="message-input" className="sr-only">
+              Paste Message Text
+            </label>
+            <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-white/80 to-transparent pointer-events-none z-10 rounded-t-xl"></div>
+            <textarea
+              id="message-input"
+              className="w-full h-64 p-6 rounded-xl bg-lined-paper text-stone-800 placeholder-stone-400 border border-stone-200 shadow-inner focus:border-forest/50 focus:ring-1 focus:ring-forest/20 resize-none text-lg transition-all outline-none"
+              placeholder="Dear Journal, today they said..."
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              disabled={isAnalyzing}
+            />
+          </div>
 
-        {/* Image Upload */}
-        <div className="space-y-2">
-           <label className="block text-sm font-semibold text-sage-800">
-            Or Upload Screenshot
-          </label>
-          
-          {imagePreview ? (
-            <div className="relative w-full h-48 bg-cream-100 rounded-xl overflow-hidden border-2 border-neutral-300">
-              <img src={imagePreview} alt="Uploaded chat screenshot" className="w-full h-full object-cover" />
-              <button
-                onClick={removeImage}
-                className="absolute top-2 right-2 p-1.5 bg-white border border-neutral-300 rounded-full text-neutral-800 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors"
-                disabled={isAnalyzing}
-                aria-label="Remove image"
-              >
-                <X size={18} />
-              </button>
-            </div>
-          ) : (
-            <div 
-              onClick={() => fileInputRef.current?.click()}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  fileInputRef.current?.click();
-                }
-              }}
-              tabIndex={0}
-              role="button"
-              aria-label="Click to upload a screenshot"
-              className="w-full h-24 border-2 border-dashed border-sage-300 rounded-xl flex items-center justify-center cursor-pointer hover:bg-white hover:border-sage-500 transition-colors bg-sage-50"
-            >
-              <div className="flex items-center gap-2 text-sage-600 font-medium">
-                <ImageIcon size={20} aria-hidden="true" />
-                <span>Upload Screenshot</span>
+          {/* Image Upload Area */}
+          <div>
+            {imagePreview ? (
+              <div className="relative w-full h-40 bg-stone-100 rounded-xl overflow-hidden border border-stone-300 shadow-sm group">
+                <img src={imagePreview} alt="Uploaded chat screenshot" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                <button
+                  onClick={removeImage}
+                  className="absolute top-2 right-2 p-1.5 bg-white/90 border border-stone-200 rounded-full text-stone-600 hover:text-red-600 hover:bg-white transition-all shadow-sm"
+                  disabled={isAnalyzing}
+                  aria-label="Remove image"
+                >
+                  <X size={16} />
+                </button>
               </div>
-            </div>
-          )}
+            ) : (
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isAnalyzing}
+                className="w-full py-3 px-4 rounded-xl border border-dashed border-stone-300 text-stone-500 hover:text-stone-700 hover:border-stone-400 hover:bg-stone-50 transition-all flex items-center justify-center gap-2 text-sm font-medium"
+              >
+                <ImageIcon size={18} />
+                <span>Attach Screenshot (Optional)</span>
+              </button>
+            )}
+          </div>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            className="hidden"
+            aria-hidden="true"
+          />
+
+          {/* Magical Pill Toggle */}
+          <div className="flex items-center justify-center pt-2">
+            <button
+              onClick={() => setUseDeepContext(!useDeepContext)}
+              className={`
+                relative flex items-center gap-3 px-6 py-2 rounded-full transition-all duration-300 border
+                ${useDeepContext 
+                  ? 'bg-white border-green-200 shadow-[0_0_15px_rgba(74,222,128,0.4)]' 
+                  : 'bg-stone-100 border-stone-200 text-stone-400 hover:bg-stone-200'
+                }
+              `}
+              aria-pressed={useDeepContext}
+            >
+              <div className={`p-1 rounded-full ${useDeepContext ? 'bg-green-100 text-green-600' : 'bg-stone-200 text-stone-400'}`}>
+                <BrainCircuit size={16} />
+              </div>
+              <span className={`text-sm font-semibold ${useDeepContext ? 'text-green-800' : 'text-stone-500'}`}>
+                Activate Deep Context
+              </span>
+              {useDeepContext && (
+                <span className="absolute -top-1 -right-1">
+                  <Sparkles size={12} className="text-yellow-500 animate-pulse" />
+                </span>
+              )}
+            </button>
+          </div>
         </div>
 
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept="image/*"
-          className="hidden"
-          aria-hidden="true"
-        />
-
-        {/* Gemini 3 Toggle */}
-        <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-sage-200">
-           <div className="flex items-center gap-2">
-              <BrainCircuit size={18} className={useDeepContext ? "text-sage-600" : "text-sage-400"} />
-              <label htmlFor="deep-context-toggle" className="text-sm font-semibold text-sage-800 cursor-pointer select-none">
-                Enable Deep Context (Gemini 3 Pro)
-              </label>
-           </div>
-           <button 
-             id="deep-context-toggle"
-             onClick={() => setUseDeepContext(!useDeepContext)}
-             className="focus:outline-none text-sage-600 hover:text-sage-800 transition-colors"
-             aria-pressed={useDeepContext}
-           >
-             {useDeepContext ? <ToggleRight size={36} /> : <ToggleLeft size={36} className="text-sage-300" />}
-           </button>
+        {/* Floating Action Button (Bottom) */}
+        <div className="mt-8 pt-4">
+          <button
+            onClick={handleSubmit}
+            disabled={(!text && !imageFile) || isAnalyzing}
+            className={`
+              w-full py-4 rounded-2xl font-bold text-white text-lg flex items-center justify-center gap-3
+              shadow-lg transition-all duration-300 transform group
+              ${(!text && !imageFile) || isAnalyzing 
+                ? 'bg-stone-300 cursor-not-allowed' 
+                : 'bg-forest hover:bg-[#254040] hover:-translate-y-1 hover:shadow-xl'
+              }
+            `}
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="animate-spin" size={24} aria-hidden="true" />
+                <span>Consulting...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles size={22} className="group-hover:rotate-12 transition-transform" aria-hidden="true" />
+                <span>Analyze Message</span>
+              </>
+            )}
+          </button>
         </div>
-
-        {/* Action Button */}
-        <button
-          onClick={handleSubmit}
-          disabled={(!text && !imageFile) || isAnalyzing}
-          className={`
-            w-full py-4 rounded-xl font-bold text-white text-lg flex items-center justify-center gap-2
-            transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-sage-200
-            ${(!text && !imageFile) || isAnalyzing 
-              ? 'bg-neutral-400 cursor-not-allowed' 
-              : 'bg-sage-600 hover:-translate-y-1 shadow-md hover:shadow-lg'
-            }
-          `}
-        >
-          {isAnalyzing ? (
-            <>
-              <Loader2 className="animate-spin" size={20} aria-hidden="true" />
-              <span>Decoding...</span>
-            </>
-          ) : (
-            <>
-              <Upload size={20} aria-hidden="true" />
-              <span>Analyze Message</span>
-            </>
-          )}
-        </button>
 
     </div>
   );

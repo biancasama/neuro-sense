@@ -6,7 +6,7 @@ import PanicButton from './components/PanicButton';
 import { AnalysisResult } from './types';
 import { analyzeMessageContext } from './services/geminiService';
 import { AlertCircle, ArrowLeft } from 'lucide-react';
-import { DecodingIllustration } from './components/Illustrations';
+import { KeyIllustration } from './components/Illustrations';
 
 const App: React.FC = () => {
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -35,66 +35,80 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cream-50 font-sans pb-24 relative text-left">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-green-50 to-stone-100 font-sans pb-12 relative text-left flex flex-col">
       <Header />
 
-      <main className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start h-full">
+      <main className="flex-grow container mx-auto px-4 md:px-8 py-4 flex flex-col items-center justify-start md:justify-center">
+        
+        {/* The Magical Notebook Container */}
+        <div className="w-full max-w-6xl bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-white/50 overflow-hidden min-h-[700px] flex flex-col">
           
-          {/* Left Column: Input / Tools */}
-          <section className="space-y-6" aria-label="Input Tools">
-             <div className="bg-cream-50 lg:sticky lg:top-24">
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-sage-800 mb-2 text-left">Input Context</h2>
-                  <p className="text-base text-sage-600 leading-relaxed text-left">
-                    Upload a screenshot or paste the text. We will analyze the tone to help you understand what is really being said.
-                  </p>
-                </div>
-                <InputSection onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
-             </div>
-          </section>
-
-          {/* Right Column: Analysis Results */}
-          <section className="min-h-[500px] flex flex-col" aria-label="Decoder Results">
-             
-             {error && (
-              <div className="mb-6 bg-rose-50 border-l-4 border-rose-500 text-rose-800 p-4 rounded-r-lg flex items-start gap-3 animate-in fade-in" role="alert">
-                <AlertCircle size={24} className="mt-0.5 flex-shrink-0" />
-                <p className="leading-relaxed">{error}</p>
-              </div>
-            )}
-
-             {isAnalyzing ? (
-                <div className="flex-grow flex flex-col items-center justify-center text-sage-500 space-y-6 animate-pulse p-12 bg-white rounded-3xl border border-sage-100">
-                   <DecodingIllustration className="w-32 h-32 opacity-50 grayscale" />
-                   <p className="text-lg font-medium text-left">Processing context...</p>
-                </div>
-             ) : result ? (
-               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <button 
-                    onClick={handleReset}
-                    className="flex items-center gap-2 text-sm font-semibold text-sage-600 hover:text-sage-900 transition-colors mb-4 lg:hidden"
-                  >
-                    <ArrowLeft size={16} /> Back to Input
-                  </button>
-                  <AnalysisDashboard result={result} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 h-full flex-grow relative">
+            
+            {/* Left Column: The "Messy Mind" Input */}
+            <div className="p-8 md:p-12 flex flex-col relative">
+               <div className="mb-8">
+                 <h2 className="text-3xl font-bold text-stone-800 mb-2">The Source</h2>
+                 <p className="text-stone-600 leading-relaxed">
+                   Paste the confusing text or upload a screenshot. Let's make sense of this together.
+                 </p>
                </div>
-             ) : (
-               /* Empty State / Placeholder */
-               <div className="flex-grow flex flex-col items-center justify-center p-12 border-2 border-dashed border-sage-200 rounded-3xl bg-white">
-                  <div className="w-64 h-64 mb-6 text-sage-300">
-                      {/* The "Nano Banana" Placeholder */}
-                      <DecodingIllustration className="w-full h-full" />
-                      <span className="sr-only">Illustration of a character decoding a message.</span>
-                  </div>
-                  <p className="text-sage-400 font-medium text-lg text-left">
-                    Results will appear here.
-                  </p>
+               
+               <div className="flex-grow">
+                 <InputSection onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
                </div>
-             )}
-          </section>
+            </div>
 
+            {/* Vertical Divider (The "Binding") */}
+            <div className="hidden lg:block absolute left-1/2 top-8 bottom-8 w-px bg-stone-200 shadow-[2px_0_5px_rgba(0,0,0,0.05)]"></div>
+
+            {/* Right Column: The "Clarity" Decoder */}
+            <div className="p-8 md:p-12 bg-stone-50/30 lg:bg-transparent flex flex-col">
+              
+              {/* Mobile Back Button */}
+              {result && (
+                <button 
+                  onClick={handleReset}
+                  className="flex items-center gap-2 text-sm font-semibold text-stone-500 hover:text-stone-800 transition-colors mb-6 lg:hidden"
+                >
+                  <ArrowLeft size={16} /> Back to Input
+                </button>
+              )}
+
+              {error && (
+                <div className="mb-6 bg-rose-50 border-l-4 border-rose-500 text-rose-800 p-4 rounded-r-lg flex items-start gap-3 animate-in fade-in" role="alert">
+                  <AlertCircle size={24} className="mt-0.5 flex-shrink-0" />
+                  <p className="leading-relaxed">{error}</p>
+                </div>
+              )}
+
+              {isAnalyzing ? (
+                 <div className="flex-grow flex flex-col items-center justify-center text-stone-400 space-y-6 animate-pulse">
+                    <KeyIllustration className="w-40 h-40 opacity-50 grayscale animate-bounce" />
+                    <p className="text-xl font-medium font-serif italic text-stone-500">Unlocking meaning...</p>
+                 </div>
+              ) : result ? (
+                <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 h-full">
+                   <h2 className="text-3xl font-bold text-stone-800 mb-6 hidden lg:block">The Clarity</h2>
+                   <AnalysisDashboard result={result} />
+                </div>
+              ) : (
+                /* Empty State / Magical Anchor */
+                <div className="flex-grow flex flex-col items-center justify-center text-center p-8">
+                   <div className="w-64 h-64 mb-8 text-stone-300 animate-float">
+                       <KeyIllustration className="w-full h-full" />
+                   </div>
+                   <h3 className="text-2xl font-semibold text-stone-700 mb-2">Ready to Unlock?</h3>
+                   <p className="text-stone-500 max-w-xs mx-auto">
+                     The interpretation will appear here, clearly written and easy to process.
+                   </p>
+                </div>
+              )}
+            </div>
+
+          </div>
         </div>
+
       </main>
 
       <PanicButton />
