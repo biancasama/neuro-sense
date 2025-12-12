@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronLeft, Globe, Check, Eye, Type, Sun, CloudOff } from 'lucide-react';
+import { ChevronLeft, Globe, Check, Eye, Type, Sun, CloudOff, LogIn, UserPlus } from 'lucide-react';
 import { Language } from '../types';
 
 interface HeaderProps {
@@ -53,20 +53,46 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showAccessMenu, setShowAccessMenu] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
   const textPrimary = theme === 'dark' ? 'text-white' : 'text-stone-900';
   const textSecondary = theme === 'dark' ? 'text-stone-400' : 'text-stone-600';
   const bg = theme === 'dark' ? 'bg-[#1E1E1E]' : 'bg-white';
   const border = theme === 'dark' ? 'border-[#383838]' : 'border-stone-200';
 
-  const languages: { code: Language; name: string; flag: string }[] = [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'es', name: 'Español', flag: '🇪🇸' },
-    { code: 'fr', name: 'Français', flag: '🇫🇷' },
-    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-    { code: 'it', name: 'Italiano', flag: '🇮🇹' },
-    { code: 'pt', name: 'Português', flag: '🇧🇷' },
-    { code: 'ja', name: '日本語', flag: '🇯🇵' },
+  // Comprehensive language list inspired by tools like Goblin AI
+  const languages: { code: string; name: string; localName: string; flag: string }[] = [
+    { code: 'en', name: 'English', localName: 'English', flag: '🇺🇸' },
+    { code: 'es', name: 'Spanish', localName: 'Español', flag: '🇪🇸' },
+    { code: 'fr', name: 'French', localName: 'Français', flag: '🇫🇷' },
+    { code: 'de', name: 'German', localName: 'Deutsch', flag: '🇩🇪' },
+    { code: 'it', name: 'Italian', localName: 'Italiano', flag: '🇮🇹' },
+    { code: 'pt', name: 'Portuguese', localName: 'Português', flag: '🇧🇷' },
+    { code: 'ja', name: 'Japanese', localName: '日本語', flag: '🇯🇵' },
+    { code: 'zh', name: 'Chinese', localName: '中文', flag: '🇨🇳' },
+    { code: 'ko', name: 'Korean', localName: '한국어', flag: '🇰🇷' },
+    { code: 'ru', name: 'Russian', localName: 'Русский', flag: '🇷🇺' },
+    { code: 'ar', name: 'Arabic', localName: 'العربية', flag: '🇸🇦' },
+    { code: 'hi', name: 'Hindi', localName: 'हिन्दी', flag: '🇮🇳' },
+    { code: 'bn', name: 'Bengali', localName: 'বাংলা', flag: '🇧🇩' },
+    { code: 'nl', name: 'Dutch', localName: 'Nederlands', flag: '🇳🇱' },
+    { code: 'tr', name: 'Turkish', localName: 'Türkçe', flag: '🇹🇷' },
+    { code: 'pl', name: 'Polish', localName: 'Polski', flag: '🇵🇱' },
+    { code: 'id', name: 'Indonesian', localName: 'Bahasa Indonesia', flag: '🇮🇩' },
+    { code: 'th', name: 'Thai', localName: 'ไทย', flag: '🇹🇭' },
+    { code: 'vi', name: 'Vietnamese', localName: 'Tiếng Việt', flag: '🇻🇳' },
+    { code: 'sv', name: 'Swedish', localName: 'Svenska', flag: '🇸🇪' },
+    { code: 'da', name: 'Danish', localName: 'Dansk', flag: '🇩🇰' },
+    { code: 'fi', name: 'Finnish', localName: 'Suomi', flag: '🇫🇮' },
+    { code: 'no', name: 'Norwegian', localName: 'Norsk', flag: '🇳🇴' },
+    { code: 'el', name: 'Greek', localName: 'Ελληνικά', flag: '🇬🇷' },
+    { code: 'he', name: 'Hebrew', localName: 'עברית', flag: '🇮🇱' },
+    { code: 'uk', name: 'Ukrainian', localName: 'Українська', flag: '🇺🇦' },
+    { code: 'cs', name: 'Czech', localName: 'Čeština', flag: '🇨🇿' },
+    { code: 'hu', name: 'Hungarian', localName: 'Magyar', flag: '🇭🇺' },
+    { code: 'ro', name: 'Romanian', localName: 'Română', flag: '🇷🇴' },
+    { code: 'la', name: 'Latin', localName: 'Latin', flag: '🏛️' },
+    { code: 'tlh', name: 'Klingon', localName: 'Klingon', flag: '🖖' },
   ];
 
   return (
@@ -79,7 +105,7 @@ const Header: React.FC<HeaderProps> = ({
             className={`p-2 -ml-2 rounded-full transition-colors flex items-center gap-1 group ${theme === 'dark' ? 'hover:bg-[#383838] text-stone-300' : 'hover:bg-stone-100 text-stone-600'}`}
           >
             <ChevronLeft size={24} className="group-hover:-translate-x-1 transition-transform"/>
-            <span className="text-sm font-medium">{language === 'en' ? 'Back' : 'Back'}</span>
+            <span className="text-sm font-medium">Back</span>
           </button>
         )}
       </div>
@@ -158,15 +184,19 @@ const Header: React.FC<HeaderProps> = ({
             {showLangMenu && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowLangMenu(false)}></div>
-                <div className={`absolute right-0 top-full mt-2 w-48 rounded-xl border shadow-xl z-50 overflow-hidden ${bg} ${border}`}>
+                <div className={`absolute right-0 top-full mt-2 w-64 max-h-[60vh] overflow-y-auto custom-scrollbar rounded-xl border shadow-xl z-50 overflow-hidden ${bg} ${border}`}>
+                   {/* Search input could be added here for a list this long, but sticking to simple list for now */}
                    {languages.map(l => (
                      <button
                        key={l.code}
-                       onClick={() => { onLanguageChange(l.code); setShowLangMenu(false); }}
-                       className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between transition-colors ${theme === 'dark' ? 'hover:bg-[#333] text-stone-200' : 'hover:bg-stone-50 text-stone-700'}`}
+                       onClick={() => { onLanguageChange(l.code as any); setShowLangMenu(false); }}
+                       className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between transition-colors border-b border-stone-100 last:border-0 ${theme === 'dark' ? 'hover:bg-[#333] text-stone-200 border-[#333]' : 'hover:bg-stone-50 text-stone-700'}`}
                      >
-                       <span className="flex items-center gap-2"><span>{l.flag}</span> {l.name}</span>
-                       {language === l.code && <Check size={14} className="text-indigo-500" />}
+                       <div className="flex flex-col">
+                         <span className="flex items-center gap-2 font-medium"><span>{l.flag}</span> {l.localName}</span>
+                         <span className={`text-xs ml-6 ${theme === 'dark' ? 'text-stone-500' : 'text-stone-400'}`}>{l.name}</span>
+                       </div>
+                       {language === l.code && <Check size={14} className="text-indigo-500 flex-shrink-0" />}
                      </button>
                    ))}
                 </div>
@@ -174,8 +204,18 @@ const Header: React.FC<HeaderProps> = ({
             )}
          </div>
 
-         <button className={`hidden md:block text-sm font-semibold px-4 py-2 rounded-xl transition-colors ${textSecondary} hover:text-indigo-500`}>
-           Log in
+         {/* Login / Sign Up Switchable Button */}
+         <button 
+           onClick={() => setAuthMode(prev => prev === 'login' ? 'signup' : 'login')}
+           className={`hidden md:flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl transition-all shadow-sm active:scale-95 select-none ${
+             authMode === 'login' 
+               ? `bg-stone-100 text-stone-700 hover:bg-stone-200` 
+               : `bg-emerald-100 text-emerald-700 hover:bg-emerald-200`
+           } ${theme === 'dark' ? (authMode === 'login' ? 'bg-[#333] text-stone-200 hover:bg-[#444]' : 'bg-emerald-900/40 text-emerald-300 hover:bg-emerald-900/60') : ''}`}
+           title="Click to switch mode"
+         >
+           {authMode === 'login' ? <LogIn size={16}/> : <UserPlus size={16}/>}
+           {authMode === 'login' ? "Log In" : "Sign Up"}
          </button>
       </div>
     </div>
