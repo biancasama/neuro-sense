@@ -50,10 +50,10 @@ const Footer = ({ theme }: { theme: 'light' | 'dark' }) => {
                <div>
                  <h4 className={`font-bold text-base mb-4 ${textPrimary}`}>Use Cases</h4>
                  <ul className={`space-y-3 text-sm ${textSecondary}`}>
-                   <li><a href="#" className="hover:text-indigo-500 transition-colors">Individuals</a></li>
-                   <li><a href="#" className="hover:text-indigo-500 transition-colors">Couples</a></li>
-                   <li><a href="#" className="hover:text-indigo-500 transition-colors">Workplace</a></li>
-                   <li><a href="#" className="hover:text-indigo-500 transition-colors">Therapy Support</a></li>
+                   <li><a href="#" className="hover:text-indigo-500 transition-colors">Social Context</a></li>
+                   <li><a href="#" className="hover:text-indigo-500 transition-colors">Emotional Safety</a></li>
+                   <li><a href="#" className="hover:text-indigo-500 transition-colors">Clarity & Focus</a></li>
+                   <li><a href="#" className="hover:text-indigo-500 transition-colors">Conflict Resolution</a></li>
                  </ul>
                </div>
 
