@@ -62,7 +62,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
            <InterpretationCard 
             title={result.literalMeaning} 
             label="Literal Meaning"
-            confidence="High" 
+            confidence={`${result.confidenceScore}%`} 
             theme={theme}
           />
           
@@ -70,7 +70,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
           <InterpretationCard 
             title={result.riskLevel === 'Safe' ? 'Safe to reply' : (result.riskLevel === 'Caution' ? 'Proceed with caution' : 'Conflict detected')} 
             label="Risk Assessment"
-            confidence={result.confidenceScore > 80 ? 'High' : 'Medium'} 
+            confidence={`${result.confidenceScore}%`} 
             theme={theme}
           />
         </div>
@@ -118,6 +118,7 @@ const InterpretationCard: React.FC<InterpretationCardProps> = ({ title, label, c
   const specificBg = theme === 'dark' ? 'bg-[#2C2C2C]' : 'bg-[#FFFCF6]'; 
   const border = theme === 'dark' ? 'border-[#383838]' : 'border-stone-100';
   const textPrimary = theme === 'dark' ? 'text-white' : 'text-stone-900';
+  const badgeBg = theme === 'dark' ? 'bg-white/5' : 'bg-stone-100/50';
 
   return (
     <div className={`p-6 rounded-3xl border ${border} ${specificBg} flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow h-full min-h-[160px]`}>
@@ -128,7 +129,7 @@ const InterpretationCard: React.FC<InterpretationCardProps> = ({ title, label, c
         </p>
       </div>
       <div className="mt-4 pt-4 border-t border-stone-200/50 flex justify-end">
-         <span className="text-xs text-stone-400 font-medium bg-stone-100/50 px-2 py-1 rounded-md">{confidence} Confidence</span>
+         <span className={`text-xs text-stone-400 font-medium ${badgeBg} px-2 py-1 rounded-md`}>{confidence} Confidence</span>
       </div>
     </div>
   );
