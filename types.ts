@@ -14,6 +14,10 @@ export interface AnalysisResult {
   emotionalSubtext: string;
   vocalTone: string;
   suggestedResponse: string[];
+  idiomsAndSarcasm: {
+    present: boolean;
+    explanation: string;
+  };
 }
 
 export interface GroundingData {

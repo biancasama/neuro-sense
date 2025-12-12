@@ -45,9 +45,18 @@ const analysisSchema: Schema = {
       type: Type.ARRAY,
       items: { type: Type.STRING },
       description: "3 distinct draft replies. In Crisis mode, these must be supportive and encourage professional help."
+    },
+    idiomsAndSarcasm: {
+      type: Type.OBJECT,
+      properties: {
+        present: { type: Type.BOOLEAN },
+        explanation: { type: Type.STRING, description: "Identify specific idioms, metaphors, or sarcasm (e.g., 'Break a leg', 'Sure, great'). Explain the cultural meaning vs literal meaning." }
+      },
+      required: ["present", "explanation"],
+      description: "Detection of non-literal language, sarcasm, or cultural idioms."
     }
   },
-  required: ["riskLevel", "confidenceScore", "literalMeaning", "emotionalSubtext", "vocalTone", "suggestedResponse"]
+  required: ["riskLevel", "confidenceScore", "literalMeaning", "emotionalSubtext", "vocalTone", "suggestedResponse", "idiomsAndSarcasm"]
 };
 
 export const transcribeAudio = async (
@@ -134,7 +143,7 @@ export const analyzeMessageContext = async (
       }
   }
 
-  promptText += `\n\nIMPORTANT: Provide the analysis (Literal Meaning, Emotional Subtext, Vocal Tone, and Suggested Responses) in ${targetLanguage} language.`;
+  promptText += `\n\nIMPORTANT: Provide the analysis (Literal Meaning, Emotional Subtext, Vocal Tone, Idioms/Sarcasm, and Suggested Responses) in ${targetLanguage} language.`;
 
   // Always push text part
   parts.push({ text: promptText });
@@ -178,6 +187,7 @@ export const analyzeMessageContext = async (
     2. Emotional Subtext: The hidden tone, intent, or feeling.
     3. Vocal Tone: Prosody analysis.
     4. Suggested Response: Options for replying.
+    5. Idioms & Sarcasm: Specifically explicitly check for idioms (e.g. "Ball is in your court", "Break a leg"), metaphors, or sarcasm (saying the opposite of what is meant). If found, set 'idiomsAndSarcasm.present' to true and explain the cultural meaning in 'explanation'.
 
     OUTPUT LANGUAGE: ${targetLanguage}
     Ensure all string fields in the JSON response are written in ${targetLanguage}.

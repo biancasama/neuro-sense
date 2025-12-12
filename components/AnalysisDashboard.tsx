@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { AnalysisResult, RiskLevel, GroundingData } from '../types';
-import { Copy, Check, Mic, ShieldCheck, AlertTriangle, Zap, Sparkles, Loader2, HeartHandshake, Phone, Info, LifeBuoy, MapPin, ExternalLink } from 'lucide-react';
+import { Copy, Check, Mic, ShieldCheck, AlertTriangle, Zap, Sparkles, Loader2, HeartHandshake, Phone, Info, LifeBuoy, MapPin, ExternalLink, Languages } from 'lucide-react';
 
 interface Props {
   result: AnalysisResult | null;
@@ -230,6 +230,21 @@ const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compa
               {result.vocalTone}
             </p>
           </div>
+        )}
+
+        {/* Idioms & Sarcasm Decoder - NEW FEATURE */}
+        {result.idiomsAndSarcasm?.present && (
+           <div className={`mb-8 p-6 rounded-2xl border ${theme === 'dark' ? 'bg-fuchsia-900/20 border-fuchsia-500/30' : 'bg-fuchsia-50 border-fuchsia-100'}`}>
+             <div className="flex items-center gap-2 mb-3">
+                <Languages size={20} className={theme === 'dark' ? 'text-fuchsia-400' : 'text-fuchsia-600'} />
+                <h3 className={`text-sm font-bold uppercase tracking-wide ${theme === 'dark' ? 'text-fuchsia-300' : 'text-fuchsia-700'}`}>
+                  Cultural & Sarcasm Decoder
+                </h3>
+             </div>
+             <p className={`text-xl font-medium leading-relaxed italic ${textPrimary}`}>
+               "{result.idiomsAndSarcasm.explanation}"
+             </p>
+           </div>
         )}
 
         {/* Summary */}
