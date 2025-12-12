@@ -22,22 +22,25 @@ const Footer = ({ theme }: { theme: 'light' | 'dark' }) => {
         {/* Top Section: Brand + Links */}
         <div className="flex flex-col md:flex-row md:justify-between gap-12">
             
-            {/* Brand Section */}
-            <div className="flex flex-col items-start md:max-w-xs">
-               <div className="flex items-center gap-3 mb-4">
+            {/* Brand Section - Aligned with Logo on left, text column on right */}
+            <div className="flex flex-row gap-4 md:max-w-xs items-start">
+               <div className="pt-1 flex-shrink-0">
                  <BrainLogo size={32} />
-                 <span className={`font-bold text-xl md:text-2xl ${textPrimary}`}>Neuro-Sense</span>
                </div>
-               <p className={`text-sm ${textSecondary} mb-6 leading-relaxed`}>
-                 Magical context decoder for the modern world.<br/>Understand tone, reply with confidence.
-               </p>
-               
-               {/* Socials - Moved here for desktop layout balance */}
-               <div className={`flex items-center gap-4 ${textSecondary}`}>
-                <a href="#" className="hover:text-indigo-500 transition-colors"><Youtube size={20} /></a>
-                <a href="#" className="hover:text-indigo-500 transition-colors"><Instagram size={20} /></a>
-                <a href="#" className="hover:text-indigo-500 transition-colors"><Music size={20} /></a>
-                <a href="#" className="hover:text-indigo-500 transition-colors"><Twitter size={20} /></a>
+               <div className="flex flex-col items-start">
+                   <div className="flex items-center gap-3 mb-4 h-8">
+                     <span className={`font-bold text-xl md:text-2xl ${textPrimary}`}>Neuro-Sense</span>
+                   </div>
+                   <p className={`text-sm ${textSecondary} mb-6 leading-relaxed`}>
+                     Context decoder. Understand tone.<br />Reply with confidence.
+                   </p>
+                   
+                   <div className={`flex items-center gap-4 ${textSecondary}`}>
+                    <a href="#" className="hover:text-indigo-500 transition-colors"><Youtube size={20} /></a>
+                    <a href="#" className="hover:text-indigo-500 transition-colors"><Instagram size={20} /></a>
+                    <a href="#" className="hover:text-indigo-500 transition-colors"><Music size={20} /></a>
+                    <a href="#" className="hover:text-indigo-500 transition-colors"><Twitter size={20} /></a>
+                   </div>
                </div>
             </div>
 
@@ -204,11 +207,6 @@ const App: React.FC = () => {
         </div>
 
         {/* Scrollable Content Area */}
-        {/* On Desktop, we want the scrollbar to be on the window if content is long, or inside card? 
-            Given h-auto on desktop, the scroll will be on the main window if it exceeds viewport. 
-            But here we have overflow-y-auto on this div. 
-            Let's keep inner scrolling for consistency with the "App in a Card" metaphor even on desktop.
-        */}
         <div className="flex-grow overflow-y-auto custom-scrollbar px-6 pb-8 md:px-16 md:pb-16 scroll-smooth">
           
           {/* VIEW 1: HOME (Hero + Input stacked) */}
@@ -228,7 +226,7 @@ const App: React.FC = () => {
                           Neuro-Sense
                         </h1>
                         <p className={`text-lg md:text-2xl lg:text-3xl font-medium leading-relaxed max-w-lg ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>
-                          Understand tone.<br className="md:hidden" /> Reply with confidence.
+                          Context decoder. Understand tone.<br />Reply with confidence.
                         </p>
                     </div>
                     

@@ -25,6 +25,9 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
   const [recordedAudio, setRecordedAudio] = useState<{ blob: Blob, mimeType: string } | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  
+  // Plain Language Mode State
+  const [plainMode, setPlainMode] = useState(true);
 
   // Styles based on theme
   const buttonBase = `
@@ -186,11 +189,31 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
             className="hidden"
         />
 
-        {/* Toggle example */}
-        <div className={`mt-8 md:mt-10 flex items-center justify-between p-5 rounded-2xl ${theme === 'dark' ? 'bg-[#2C2C2C]' : 'bg-stone-50'} max-w-lg`}>
-           <span className={`font-medium text-base md:text-lg ${textPrimary}`}>Plain language mode</span>
-           <div className={`w-14 h-7 rounded-full relative ${theme === 'dark' ? 'bg-indigo-500/20' : 'bg-indigo-100'}`}>
-              <div className="absolute right-1 top-1 w-5 h-5 bg-indigo-500 rounded-full shadow-sm"></div>
+        {/* Interactive Plain Language Mode Toggle */}
+        <div 
+          onClick={() => setPlainMode(!plainMode)}
+          className={`mt-8 md:mt-10 flex flex-col p-5 rounded-2xl cursor-pointer transition-all ${theme === 'dark' ? 'bg-[#2C2C2C] hover:bg-[#353535]' : 'bg-stone-50 hover:bg-stone-100'} max-w-lg border border-transparent hover:border-indigo-100`}
+        >
+           <div className="flex items-center justify-between w-full">
+               <span className={`font-medium text-base md:text-lg ${textPrimary}`}>Plain language mode</span>
+               <div className={`w-14 h-7 rounded-full relative transition-colors duration-300 ${plainMode ? 'bg-indigo-500/20' : (theme === 'dark' ? 'bg-stone-700' : 'bg-stone-200')}`}>
+                  <div className={`absolute top-1 w-5 h-5 rounded-full shadow-sm transition-all duration-300 ${plainMode ? 'bg-indigo-500 right-1' : 'bg-stone-400 left-1'}`}></div>
+               </div>
+           </div>
+           
+           {/* The "Box" suggesting answer appearing */}
+           <div className={`grid transition-all duration-300 ease-in-out ${plainMode ? 'grid-rows-[1fr] opacity-100 mt-4' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
+              <div className="overflow-hidden">
+                 <div className={`p-4 rounded-xl border-2 border-dashed ${theme === 'dark' ? 'border-stone-700 bg-black/20' : 'border-stone-200 bg-white/50'}`}>
+                    <div className="flex items-center gap-3 mb-2">
+                       <div className={`w-2 h-2 rounded-full ${theme === 'dark' ? 'bg-indigo-400' : 'bg-indigo-500'} animate-pulse`}></div>
+                       <span className={`text-xs font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-stone-500' : 'text-stone-400'}`}>Preview</span>
+                    </div>
+                    <p className={`text-sm ${textSecondary} leading-relaxed`}>
+                       The analysis will be stripped of jargon and complex phrasing. <span className="opacity-50">Clear. Concise. Direct.</span>
+                    </p>
+                 </div>
+              </div>
            </div>
         </div>
       </div>
