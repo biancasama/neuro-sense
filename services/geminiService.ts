@@ -39,7 +39,7 @@ const analysisSchema: Schema = {
     },
     vocalTone: {
       type: Type.STRING,
-      description: "If audio is provided, describe the pitch, volume, speed and what they imply (e.g., sarcasm, anger, hesitance). If no audio, explicitly state 'Text only - tone inferred from punctuation'."
+      description: "If audio is provided, describe the pitch, volume, speed, and implied emotion. Also identify the accent or origin if 'Auto-Detect Accent' was requested or if it's distinct."
     },
     suggestedResponse: {
       type: Type.ARRAY,
@@ -125,9 +125,15 @@ export const analyzeMessageContext = async (
   }
 
   let promptText = `Analyze this communication. Text content: "${text}".`;
-  if (audioBase64 && voiceAccent && voiceAccent !== 'Neutral') {
-    promptText += `\n\nContext: The speaker in the audio has a ${voiceAccent} accent.`;
+  
+  if (audioBase64) {
+      if (voiceAccent === 'Auto-Detect Accent') {
+         promptText += `\n\nContext: The audio contains speech. Please analyze the speaker's accent/origin as part of the vocal tone analysis.`;
+      } else if (voiceAccent && voiceAccent !== 'Neutral') {
+         promptText += `\n\nContext: The speaker in the audio has a ${voiceAccent} accent.`;
+      }
   }
+
   promptText += `\n\nIMPORTANT: Provide the analysis (Literal Meaning, Emotional Subtext, Vocal Tone, and Suggested Responses) in ${targetLanguage} language.`;
 
   // Always push text part
@@ -143,7 +149,7 @@ export const analyzeMessageContext = async (
     
     1. Literal Meaning: What the words say directly.
     2. Emotional Subtext: The hidden tone, intent, or feeling.
-    3. Vocal Tone: If audio is provided, analyze the prosody (pitch, pace, volume, pauses) to determine the speaker's true feeling (e.g. is it sarcastic? anxious? angry?).
+    3. Vocal Tone: If audio is provided, analyze the prosody (pitch, pace, volume, pauses) to determine the speaker's true feeling (e.g. is it sarcastic? anxious? angry?). Include accent identification if requested.
     4. Suggested Response: Options for replying.
 
     OUTPUT LANGUAGE: ${targetLanguage}

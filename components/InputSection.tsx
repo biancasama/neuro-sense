@@ -10,7 +10,35 @@ interface InputSectionProps {
   theme: 'light' | 'dark';
 }
 
-const ACCENTS = ["Neutral", "American", "British", "Australian", "Indian", "Irish", "Scottish", "South African", "Canadian"];
+// Add support for Web Speech API types
+declare global {
+  interface Window {
+    webkitSpeechRecognition: any;
+    SpeechRecognition: any;
+  }
+}
+
+const ACCENTS = [
+  "Neutral", 
+  "Auto-Detect Accent",
+  "American", 
+  "British", 
+  "Australian", 
+  "Canadian", 
+  "Indian", 
+  "Irish", 
+  "Scottish", 
+  "South African",
+  "English (Italian)", 
+  "English (French)", 
+  "English (German)", 
+  "English (Spanish)", 
+  "English (Portuguese)", 
+  "English (Russian)",
+  "English (Japanese)", 
+  "English (Chinese)", 
+  "English (Arabic)"
+];
 
 const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, theme }) => {
   const [mode, setMode] = useState<'selection' | 'text' | 'image' | 'audio'>('selection');
@@ -28,8 +56,12 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
   // Audio Recording State
   const [isRecording, setIsRecording] = useState(false);
   const [recordedAudio, setRecordedAudio] = useState<{ blob: Blob, mimeType: string } | null>(null);
+  
+  // Refs for Recording
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const recognitionRef = useRef<any>(null);
+  const baseTextRef = useRef<string>(''); // Stores text present before recording started
   
   // Plain Language Mode State
   const [plainMode, setPlainMode] = useState(true);
@@ -43,6 +75,15 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
     if (savedAccent) {
       setVoiceAccent(savedAccent);
     }
+  }, []);
+
+  // Cleanup recognition on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
   }, []);
 
   const handleAccentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -87,6 +128,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
 
   const startRecording = async () => {
     try {
+      // 1. Start Audio Recording (MediaRecorder) - For Tone Analysis
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
       const mediaRecorder = new MediaRecorder(stream, { mimeType });
@@ -108,6 +150,52 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
       };
 
       mediaRecorder.start();
+
+      // 2. Start Speech Recognition (Web Speech API) - For Live Text
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US'; // Default to EN, could map voiceAccent here
+
+        baseTextRef.current = text; // Snapshot current text so we append to it
+
+        recognition.onresult = (event: any) => {
+          let interimTranscript = '';
+          let finalTranscript = '';
+
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript;
+            } else {
+              interimTranscript += event.results[i][0].transcript;
+            }
+          }
+
+          // Combine the snapshot text + any gathered final transcript + current interim
+          // Note: In a production app, handling the cursor position is complex. 
+          // Here we append to the end for simplicity.
+          const spacing = baseTextRef.current && !baseTextRef.current.endsWith(' ') ? ' ' : '';
+          const newText = baseTextRef.current + spacing + finalTranscript + interimTranscript;
+          
+          setText(newText);
+          
+          // If we have final results, update the base so interim calculations are correct next tick
+          if (finalTranscript) {
+            baseTextRef.current += spacing + finalTranscript;
+          }
+        };
+
+        recognition.onerror = (event: any) => {
+          console.error("Speech recognition error", event.error);
+        };
+
+        recognition.start();
+        recognitionRef.current = recognition;
+      }
+
       setIsRecording(true);
     } catch (err) {
       console.error("Microphone access denied:", err);
@@ -116,10 +204,18 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
   };
 
   const stopRecording = () => {
+    // Stop Audio Recording
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
     }
+
+    // Stop Speech Recognition
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+
+    setIsRecording(false);
   };
 
   const resetSelection = () => {
@@ -129,6 +225,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
     setFileType(null);
     setRecordedAudio(null);
     setIsRecording(false);
+    setText('');
   };
 
   const handleSubmit = async () => {
@@ -283,7 +380,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
               w-full h-full p-6 md:p-8 text-lg md:text-xl resize-none outline-none bg-transparent leading-relaxed
               ${theme === 'dark' ? 'text-white placeholder-stone-500' : 'text-stone-800 placeholder-stone-400'}
             `}
-            placeholder={t.inputPlaceholder}
+            placeholder={isRecording ? t.voicePlaceholder : t.inputPlaceholder}
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
@@ -296,7 +393,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
                 <select 
                   value={voiceAccent}
                   onChange={handleAccentChange}
-                  className={`bg-transparent text-sm font-medium outline-none cursor-pointer ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}
+                  className={`bg-transparent text-sm font-medium outline-none cursor-pointer ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'} max-w-[150px]`}
                 >
                   {ACCENTS.map(a => <option key={a} value={a}>{a}</option>)}
                 </select>
