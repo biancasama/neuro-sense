@@ -200,7 +200,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compa
       
       {/* SECTION 1: INTERPRETATIONS */}
       <div>
-        <h2 className={`text-3xl md:text-4xl font-bold mb-8 ${textPrimary}`}>Interpretations</h2>
+        <h2 className={`text-3xl md:text-4xl font-bold mb-8 ${textPrimary} transition-transform duration-300 hover:scale-105 hover:-translate-y-1 origin-left cursor-default inline-block`}>Interpretations</h2>
         
         {/* VIBE CHECK (Risk Assessment) */}
         <div className={`mb-8 p-6 rounded-3xl border flex items-center gap-6 ${vibe.bg} ${vibe.border}`}>

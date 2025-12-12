@@ -263,6 +263,34 @@ const App: React.FC = () => {
   return (
     <div className={containerClass}>
       
+      {/* Matte Sparkle Animation Styles */}
+      <style>{`
+        .matte-sparkle {
+          background: linear-gradient(
+            110deg, 
+            #a5b4fc 10%, 
+            #f0abfc 30%, 
+            #ffffff 50%, 
+            #67e8f9 70%, 
+            #a5b4fc 90%
+          );
+          background-size: 200% auto;
+          color: transparent;
+          -webkit-background-clip: text;
+          background-clip: text;
+          animation: shine 5s linear infinite;
+          font-weight: 800;
+          filter: drop-shadow(0 4px 6px rgba(167, 139, 250, 0.25));
+          text-decoration: none;
+          display: inline-block;
+        }
+        @keyframes shine {
+          to {
+            background-position: -200% center;
+          }
+        }
+      `}</style>
+      
       {/* Theme Toggle (Floating) */}
       <button 
         onClick={toggleTheme}
@@ -302,21 +330,40 @@ const App: React.FC = () => {
                     <div className="mb-6 md:mb-8 w-full">
                         {/* Logo logic remains mostly same, just size adjusted */}
                         <div className="md:hidden mb-6 flex justify-center"><BrainLogo size={80} /></div> 
-                        {/* Desktop: Increased size, negative margin to visually align with text below */}
-                        <div className="hidden md:flex mb-6 -ml-4"><BrainLogo size={140} /></div> 
+                        {/* Desktop: Increased size to 240px (1.5x of previous 160ish base) and added salient hover effects */}
+                        <div className="hidden md:flex mb-6 -ml-8 transition-transform duration-500 ease-in-out hover:scale-110 hover:rotate-2 cursor-pointer group origin-left">
+                           <BrainLogo size={240} className="drop-shadow-sm group-hover:drop-shadow-2xl transition-all duration-500" />
+                        </div> 
                         
-                        <h1 className={`text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight leading-tight ${textClass}`}>
+                        <h1 className={`text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight leading-tight transition-transform duration-300 hover:-translate-y-1 hover:scale-105 cursor-default drop-shadow-sm ${textClass}`}>
                           Neuro-Sense
                         </h1>
                         
-                        {/* Staggered Alignment Subtitle */}
+                        {/* Staggered Alignment Subtitle with Matte Sparkle Effect */}
                         <div className={`w-full max-w-lg flex flex-col gap-2 md:gap-4 text-lg md:text-2xl lg:text-3xl font-medium leading-relaxed ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>
                            {t.heroSubtitle.split('. ').map((sent: string, i: number) => {
                              // Dynamic Alignment: Left -> Right -> Center
                              const alignClass = i === 0 ? 'text-left' : (i === 1 ? 'text-right' : 'text-center');
+                             
+                             // Salience Logic: Highlight specific words
+                             const parts = sent.split(' ');
+                             
                              return (
                                <span key={i} className={`block ${alignClass}`}>
-                                 {sent}{i < 2 ? '.' : ''}
+                                 {parts.map((word, wIdx) => {
+                                    const cleanWord = word.replace('.', '').toLowerCase();
+                                    const isHighlight = ['decoder', 'tone', 'confidence'].includes(cleanWord);
+                                    
+                                    // Apply "matte-sparkle" class for special highlights ONLY if not in sensory safe mode
+                                    const extraClass = (isHighlight && !accessibility.sensorySafe) ? 'matte-sparkle' : '';
+
+                                    return (
+                                      <span key={wIdx} className={extraClass}>
+                                        {word}{wIdx < parts.length - 1 ? ' ' : ''}
+                                      </span>
+                                    );
+                                 })}
+                                 {i < 2 ? '.' : ''}
                                </span>
                              )
                            })}
@@ -339,8 +386,8 @@ const App: React.FC = () => {
 
                   {/* Hero Image Side - HIDDEN IN SENSORY MODE */}
                   {!accessibility.sensorySafe && (
-                    <div className="flex-1 flex justify-center w-full max-w-sm md:max-w-md lg:max-w-lg transform md:scale-110 lg:scale-125">
-                        <PhoneMockupIllustration className="w-full h-auto drop-shadow-2xl" />
+                    <div className="flex-1 flex justify-center w-full max-w-sm md:max-w-md lg:max-w-lg transform md:scale-110 lg:scale-125 transition-all duration-500 hover:scale-[1.3] hover:-translate-y-4 hover:rotate-1 cursor-pointer">
+                        <PhoneMockupIllustration className="w-full h-auto drop-shadow-2xl hover:drop-shadow-[0_25px_25px_rgba(0,0,0,0.15)] transition-all duration-500" />
                     </div>
                   )}
                </div>
@@ -355,7 +402,17 @@ const App: React.FC = () => {
                {/* INPUT SECTION */}
                <div id="decode-section" ref={decodeSectionRef} className={`mb-12 scroll-mt-32 max-w-4xl mx-auto w-full ${!accessibility.sensorySafe && 'animate-in fade-in slide-in-from-bottom-8 duration-700'}`}>
                   <div className="mb-8 md:mb-12 text-center md:text-left">
-                    <h2 className={`text-3xl md:text-5xl font-bold mb-4 ${textClass}`}>{t.decodeTitle}</h2>
+                    <h2 className={`text-3xl md:text-5xl font-bold mb-4 ${textClass} transition-transform duration-300 hover:scale-105 hover:-translate-y-1 origin-left cursor-default`}>
+                       {t.decodeTitle.split(' ').map((word: string, i: number) => {
+                          const lower = word.toLowerCase();
+                          // Target "intention" specifically to apply matte sparkle and lowercase it
+                          if (lower.includes('intention') || lower.includes('intención')) {
+                             const styleClass = !accessibility.sensorySafe ? "matte-sparkle lowercase" : "lowercase";
+                             return <span key={i} className={`${styleClass} inline-block`}>{lower} </span>
+                          }
+                          return <span key={i}>{word} </span>
+                       })}
+                    </h2>
                     <p className={`text-lg md:text-xl ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>
                       {t.decodeDesc}
                     </p>

@@ -97,7 +97,7 @@ const DeepContextToggle: React.FC<{
               {isEnabled && <span className="text-white text-sm font-bold">✓</span>}
            </div>
            <div>
-              <span className={`text-lg font-bold block ${textPrimary}`}>Deep Context</span>
+              <span className={`text-lg font-bold block ${textPrimary}`}>Deep context</span>
               <span className={`text-sm ${textSecondary}`}>Enable reasoning mode (Gemini 3 Pro)</span>
            </div>
         </div>
@@ -138,7 +138,7 @@ const DeepContextToggle: React.FC<{
        <div className="flex flex-col relative z-10">
          <div className="flex items-center gap-2 mb-0.5">
             <span className={`text-lg font-bold ${isEnabled ? 'text-white' : textPrimary}`}>
-              Deep Context
+              Deep context
             </span>
             {!isEnabled && (
                <span className="flex h-2 w-2 relative">

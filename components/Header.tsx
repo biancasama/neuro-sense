@@ -13,38 +13,66 @@ interface HeaderProps {
   onToggleAccessibility: (key: 'dyslexic' | 'sensorySafe' | 'coPilot') => void;
 }
 
-// Re-introducing the BrainLogo for shared use
+// Re-introducing the BrainLogo for shared use with Animation
 export const BrainLogo = ({ size = 48, className = "" }: { size?: number, className?: string }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 100 100" 
-    fill="none" 
-    xmlns="http://www.w3.org/2000/svg" 
-    className={className}
-    aria-label="Neuro-Sense Logo"
-    role="img"
-    strokeLinecap="round" 
-    strokeLinejoin="round"
-  >
-    {/* Sage Green - Top Left / Frontal Lobe */}
-    <path d="M 28 55 C 18 40 25 20 50 22" stroke="#94B594" strokeWidth="7" />
-    <path d="M 43 17 L 50 22 L 43 27" stroke="#94B594" strokeWidth="7" />
+  <div className={`relative ${className}`} style={{ width: size, height: size }}>
+    <style>{`
+      @keyframes gyrus-float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-3px) rotate(2deg); }
+      }
+      @keyframes gyrus-float-reverse {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(3px) rotate(-2deg); }
+      }
+      @keyframes gyrus-pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+      .gyrus-group { transform-box: fill-box; transform-origin: center; }
+      .gyrus-1 { animation: gyrus-float 6s ease-in-out infinite; }
+      .gyrus-2 { animation: gyrus-float-reverse 7s ease-in-out infinite; animation-delay: 0.5s; }
+      .gyrus-3 { animation: gyrus-pulse 5s ease-in-out infinite; animation-delay: 1s; }
+      .gyrus-4 { animation: gyrus-float 8s ease-in-out infinite; animation-delay: 1.5s; }
+    `}</style>
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 100 100" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      aria-label="Neuro-Sense Logo"
+      role="img"
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      className="overflow-visible"
+    >
+      {/* Sage Green - Top Left / Frontal Lobe */}
+      <g className="gyrus-group gyrus-1">
+        <path d="M 28 55 C 18 40 25 20 50 22" stroke="#94B594" strokeWidth="7" />
+        <path d="M 43 17 L 50 22 L 43 27" stroke="#94B594" strokeWidth="7" />
+      </g>
 
-    {/* Coral/Orange - Top Right / Parietal */}
-    <path d="M 60 22 C 75 22 88 30 82 52" stroke="#E89E84" strokeWidth="7" />
-    <path d="M 87 46 L 82 52 L 77 46" stroke="#E89E84" strokeWidth="7" />
+      {/* Coral/Orange - Top Right / Parietal */}
+      <g className="gyrus-group gyrus-2">
+        <path d="M 60 22 C 75 22 88 30 82 52" stroke="#E89E84" strokeWidth="7" />
+        <path d="M 87 46 L 82 52 L 77 46" stroke="#E89E84" strokeWidth="7" />
+      </g>
 
-    {/* Pastel Yellow - Central */}
-    <path d="M 75 58 C 65 65 50 65 35 55" stroke="#EBCB7A" strokeWidth="7" />
-    <path d="M 41 51 L 35 55 L 41 59" stroke="#EBCB7A" strokeWidth="7" />
+      {/* Pastel Yellow - Central */}
+      <g className="gyrus-group gyrus-3">
+        <path d="M 75 58 C 65 65 50 65 35 55" stroke="#EBCB7A" strokeWidth="7" />
+        <path d="M 41 51 L 35 55 L 41 59" stroke="#EBCB7A" strokeWidth="7" />
+      </g>
 
-    {/* Soft Blue - Bottom */}
-    <path d="M 30 70 C 35 85 65 85 70 75" stroke="#93C0DE" strokeWidth="7" />
-    <path d="M 64 71 L 70 75 L 64 79" stroke="#93C0DE" strokeWidth="7" />
-    
-    <path d="M 50 88 L 50 94" stroke="#94B594" strokeWidth="7" />
-  </svg>
+      {/* Soft Blue - Bottom */}
+      <g className="gyrus-group gyrus-4">
+        <path d="M 30 70 C 35 85 65 85 70 75" stroke="#93C0DE" strokeWidth="7" />
+        <path d="M 64 71 L 70 75 L 64 79" stroke="#93C0DE" strokeWidth="7" />
+        <path d="M 50 88 L 50 94" stroke="#94B594" strokeWidth="7" />
+      </g>
+    </svg>
+  </div>
 );
 
 const Header: React.FC<HeaderProps> = ({ 
