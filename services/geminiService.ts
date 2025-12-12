@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type, Schema } from "@google/genai";
-import { AnalysisResult, RiskLevel } from "../types";
+import { AnalysisResult, RiskLevel, GroundingData } from "../types";
 
 // Helper to convert file to base64
 export const fileToGenerativePart = async (file: File | Blob): Promise<string> => {
@@ -216,5 +216,42 @@ export const analyzeMessageContext = async (
   } catch (error) {
     console.error("Gemini Analysis Error:", error);
     throw error;
+  }
+};
+
+// New function for Google Maps Grounding
+export const getNearbySupportPlaces = async (lat: number, lng: number): Promise<GroundingData> => {
+  if (!process.env.API_KEY) {
+    throw new Error("API Key is missing.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash", 
+      contents: "Find 3 nearby mental health crisis centers, hospitals, or gentle support groups. List them with their address and open hours. Be brief and supportive.",
+      config: {
+        tools: [{ googleMaps: {} }],
+        toolConfig: {
+          retrievalConfig: {
+            latLng: {
+              latitude: lat,
+              longitude: lng
+            }
+          }
+        }
+      }
+    });
+    
+    // Note: When using tools like googleMaps, we cannot use responseSchema.
+    // We return the raw text and the grounding metadata.
+    return {
+      text: response.text || "No nearby places found.",
+      chunks: response.candidates?.[0]?.groundingMetadata?.groundingChunks || []
+    };
+  } catch (error) {
+    console.error("Maps Grounding Error:", error);
+    return { text: "Could not fetch nearby locations.", chunks: [] };
   }
 };

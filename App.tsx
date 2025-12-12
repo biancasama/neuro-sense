@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { AnalysisResult, Language, Memory } from './types';
-import { analyzeMessageContext } from './services/geminiService';
+import { AnalysisResult, Language, Memory, RiskLevel, GroundingData } from './types';
+import { analyzeMessageContext, getNearbySupportPlaces } from './services/geminiService';
 import InputSection from './components/InputSection';
 import AnalysisDashboard from './components/AnalysisDashboard';
 import Header, { BrainLogo } from './components/Header';
@@ -105,6 +105,8 @@ const App: React.FC = () => {
   const [view, setView] = useState<'home' | 'results'>('home');
   
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [nearbyPlaces, setNearbyPlaces] = useState<GroundingData | null>(null);
+  
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [language, setLanguage] = useState<Language>('en');
@@ -131,13 +133,12 @@ const App: React.FC = () => {
   ) => {
     setIsAnalyzing(true);
     setError(null);
+    setNearbyPlaces(null);
     
     // Move to results view immediately to show loading state
     setView('results');
 
     try {
-      // Map short codes to full language names if needed by Gemini, or just pass the code
-      // We'll pass English explicitly as 'English' in logic for now, or use mapped name
       const langNameMap: Record<Language, string> = {
           en: 'English', es: 'Spanish', fr: 'French', de: 'German', 
           it: 'Italian', pt: 'Portuguese', ja: 'Japanese'
@@ -154,6 +155,23 @@ const App: React.FC = () => {
         voiceAccent
       );
       setResult(data);
+
+      // --- Safety Check: Get Nearby Resources if Crisis or Concern ---
+      if (data.riskLevel === RiskLevel.CRISIS || data.riskLevel === RiskLevel.CONCERN) {
+         if ('geolocation' in navigator) {
+           navigator.geolocation.getCurrentPosition(async (position) => {
+             try {
+                const places = await getNearbySupportPlaces(position.coords.latitude, position.coords.longitude);
+                setNearbyPlaces(places);
+             } catch (geoErr) {
+               console.warn("Failed to get nearby places", geoErr);
+             }
+           }, (err) => {
+             console.warn("Geolocation denied or failed", err);
+           });
+         }
+      }
+
     } catch (err: any) {
       setError(t.error);
       setView('home'); // Go back on error
@@ -165,6 +183,7 @@ const App: React.FC = () => {
 
   const handleReset = () => {
     setResult(null);
+    setNearbyPlaces(null);
     setView('home');
   };
 
@@ -303,6 +322,7 @@ const App: React.FC = () => {
                ) : (
                  <AnalysisDashboard 
                    result={result} 
+                   nearbyPlaces={nearbyPlaces}
                    onSave={() => {}} 
                    t={t} 
                    theme={theme}

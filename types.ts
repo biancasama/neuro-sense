@@ -16,6 +16,11 @@ export interface AnalysisResult {
   suggestedResponse: string[];
 }
 
+export interface GroundingData {
+  text: string;
+  chunks: any[];
+}
+
 export interface Memory {
   id: string;
   timestamp: number;

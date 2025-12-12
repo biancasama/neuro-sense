@@ -1,17 +1,18 @@
 
 import React, { useState } from 'react';
-import { AnalysisResult, RiskLevel } from '../types';
-import { Copy, Check, Mic, ShieldCheck, AlertTriangle, Zap, Sparkles, Loader2, HeartHandshake, Phone, Info, LifeBuoy } from 'lucide-react';
+import { AnalysisResult, RiskLevel, GroundingData } from '../types';
+import { Copy, Check, Mic, ShieldCheck, AlertTriangle, Zap, Sparkles, Loader2, HeartHandshake, Phone, Info, LifeBuoy, MapPin, ExternalLink } from 'lucide-react';
 
 interface Props {
   result: AnalysisResult | null;
+  nearbyPlaces?: GroundingData | null;
   onSave: () => void;
   t: any;
   theme: 'light' | 'dark';
   compact?: boolean;
 }
 
-const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
+const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compact, t }) => {
   if (!result) return null;
 
   // SAFETY LEVEL 2: CRISIS MODE (Immediate Danger)
@@ -60,6 +61,46 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
                     </div>
                 </div>
 
+                {/* Nearby Places Section (Grounding from Maps) */}
+                {nearbyPlaces && (
+                    <div className="mb-8 animate-in slide-in-from-bottom-2 fade-in">
+                       <h3 className={`text-sm font-bold uppercase tracking-wider mb-4 opacity-80 ${theme === 'dark' ? 'text-red-200' : 'text-red-800'}`}>Nearby Safe Places</h3>
+                       <div className={`p-5 rounded-2xl ${theme === 'dark' ? 'bg-red-900/20' : 'bg-white'} border border-red-500/20 shadow-sm`}>
+                           <div className="flex items-start gap-4">
+                              <MapPin size={24} className="text-red-500 flex-shrink-0 mt-1" />
+                              <div className="w-full">
+                                  <p className={`text-sm mb-4 leading-relaxed whitespace-pre-line ${theme === 'dark' ? 'text-red-100' : 'text-red-900'}`}>
+                                      {nearbyPlaces.text}
+                                  </p>
+                                  
+                                  {/* Map Links */}
+                                  {nearbyPlaces.chunks && nearbyPlaces.chunks.length > 0 && (
+                                     <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-red-500/10">
+                                        {nearbyPlaces.chunks.map((chunk, idx) => (
+                                          chunk.web?.uri || chunk.maps?.uri ? (
+                                             <a 
+                                               key={idx}
+                                               href={chunk.maps?.uri || chunk.web?.uri}
+                                               target="_blank"
+                                               rel="noopener noreferrer"
+                                               className={`
+                                                 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-colors
+                                                 ${theme === 'dark' ? 'bg-red-800/50 hover:bg-red-700 text-white' : 'bg-red-100 hover:bg-red-200 text-red-800'}
+                                               `}
+                                             >
+                                                <ExternalLink size={12} />
+                                                {chunk.maps?.title || chunk.web?.title || "View on Map"}
+                                             </a>
+                                          ) : null
+                                        ))}
+                                     </div>
+                                  )}
+                              </div>
+                           </div>
+                       </div>
+                    </div>
+                )}
+
                 {/* Disclaimer */}
                 <p className={`text-sm opacity-70 text-center max-w-2xl mx-auto leading-relaxed ${theme === 'dark' ? 'text-red-300' : 'text-red-800'}`}>
                     {t.disclaimer || "Neuro-Sense is an AI tool. If you or someone else is in immediate danger, please call emergency services."}
@@ -84,7 +125,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
   // SAFETY LEVEL 1: CONCERN MODE (Distress / Hopelessness)
   if (result.riskLevel === RiskLevel.CONCERN) {
      return (
-        <ConcernModeDashboard result={result} theme={theme} t={t} />
+        <ConcernModeDashboard result={result} nearbyPlaces={nearbyPlaces} theme={theme} t={t} />
      )
   }
 
@@ -286,7 +327,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
 
 // --- Sub-Components ---
 
-const ConcernModeDashboard: React.FC<{ result: AnalysisResult, theme: 'light' | 'dark', t: any }> = ({ result, theme, t }) => {
+const ConcernModeDashboard: React.FC<{ result: AnalysisResult, nearbyPlaces?: GroundingData | null, theme: 'light' | 'dark', t: any }> = ({ result, nearbyPlaces, theme, t }) => {
     const [showResources, setShowResources] = useState(false);
 
     return (
@@ -330,21 +371,60 @@ const ConcernModeDashboard: React.FC<{ result: AnalysisResult, theme: 'light' | 
 
                 {/* Expandable Resources */}
                 {showResources && (
-                     <div className="mt-6 grid md:grid-cols-2 gap-4 animate-in slide-in-from-top-2 fade-in">
-                        <div className={`p-4 rounded-xl flex items-center gap-3 ${theme === 'dark' ? 'bg-amber-900/40' : 'bg-white'} border border-amber-500/20`}>
-                            <LifeBuoy size={20} className="text-amber-500" />
-                            <div>
-                                <p className={`font-bold text-xs uppercase opacity-70 ${theme === 'dark' ? 'text-amber-200' : 'text-amber-900'}`}>Support Line (USA)</p>
-                                <p className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-amber-900'}`}>988</p>
+                     <div className="mt-6 space-y-4 animate-in slide-in-from-top-2 fade-in">
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className={`p-4 rounded-xl flex items-center gap-3 ${theme === 'dark' ? 'bg-amber-900/40' : 'bg-white'} border border-amber-500/20`}>
+                                <LifeBuoy size={20} className="text-amber-500" />
+                                <div>
+                                    <p className={`font-bold text-xs uppercase opacity-70 ${theme === 'dark' ? 'text-amber-200' : 'text-amber-900'}`}>Support Line (USA)</p>
+                                    <p className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-amber-900'}`}>988</p>
+                                </div>
+                            </div>
+                            <div className={`p-4 rounded-xl flex items-center gap-3 ${theme === 'dark' ? 'bg-amber-900/40' : 'bg-white'} border border-amber-500/20`}>
+                                <LifeBuoy size={20} className="text-amber-500" />
+                                <div>
+                                    <p className={`font-bold text-xs uppercase opacity-70 ${theme === 'dark' ? 'text-amber-200' : 'text-amber-900'}`}>Crisis Text Line</p>
+                                    <p className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-amber-900'}`}>Text HOME to 741741</p>
+                                </div>
                             </div>
                         </div>
-                        <div className={`p-4 rounded-xl flex items-center gap-3 ${theme === 'dark' ? 'bg-amber-900/40' : 'bg-white'} border border-amber-500/20`}>
-                            <LifeBuoy size={20} className="text-amber-500" />
-                            <div>
-                                <p className={`font-bold text-xs uppercase opacity-70 ${theme === 'dark' ? 'text-amber-200' : 'text-amber-900'}`}>Crisis Text Line</p>
-                                <p className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-amber-900'}`}>Text HOME to 741741</p>
+
+                        {/* Local Resources via Maps */}
+                        {nearbyPlaces && (
+                            <div className={`p-4 rounded-xl ${theme === 'dark' ? 'bg-amber-900/40' : 'bg-white'} border border-amber-500/20`}>
+                                <div className="flex items-start gap-3">
+                                   <MapPin size={20} className="text-amber-500 flex-shrink-0 mt-1" />
+                                   <div className="w-full">
+                                       <p className={`font-bold text-xs uppercase opacity-70 mb-2 ${theme === 'dark' ? 'text-amber-200' : 'text-amber-900'}`}>Local Support</p>
+                                       <p className={`text-sm mb-3 whitespace-pre-line ${theme === 'dark' ? 'text-amber-100' : 'text-amber-900'}`}>
+                                           {nearbyPlaces.text}
+                                       </p>
+                                       
+                                        {nearbyPlaces.chunks && nearbyPlaces.chunks.length > 0 && (
+                                            <div className="flex flex-wrap gap-2 pt-2 border-t border-amber-500/10">
+                                            {nearbyPlaces.chunks.map((chunk, idx) => (
+                                                chunk.web?.uri || chunk.maps?.uri ? (
+                                                <a 
+                                                    key={idx}
+                                                    href={chunk.maps?.uri || chunk.web?.uri}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className={`
+                                                    inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-colors
+                                                    ${theme === 'dark' ? 'bg-amber-800/50 hover:bg-amber-700 text-white' : 'bg-amber-100 hover:bg-amber-200 text-amber-800'}
+                                                    `}
+                                                >
+                                                    <ExternalLink size={10} />
+                                                    {chunk.maps?.title || chunk.web?.title || "View Map"}
+                                                </a>
+                                                ) : null
+                                            ))}
+                                            </div>
+                                        )}
+                                   </div>
+                                </div>
                             </div>
-                        </div>
+                        )}
                      </div>
                 )}
             </div>
