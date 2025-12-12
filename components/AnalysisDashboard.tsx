@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { AnalysisResult, RiskLevel } from '../types';
-import { Copy, Check, Mic, ShieldCheck, AlertTriangle, Zap, Sparkles, Loader2 } from 'lucide-react';
+import { Copy, Check, Mic, ShieldCheck, AlertTriangle, Zap, Sparkles, Loader2, HeartHandshake, Phone } from 'lucide-react';
 
 interface Props {
   result: AnalysisResult | null;
@@ -13,6 +13,89 @@ interface Props {
 
 const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
   if (!result) return null;
+
+  // SAFETY OVERRIDE: CRISIS MODE
+  if (result.riskLevel === RiskLevel.CRISIS) {
+    return (
+        <div className="animate-in fade-in zoom-in-95 duration-500 max-w-4xl mx-auto w-full">
+            {/* Crisis Header */}
+            <div className={`p-8 rounded-3xl border-2 mb-8 shadow-2xl ${theme === 'dark' ? 'bg-red-950/30 border-red-500/50' : 'bg-red-50 border-red-200'}`}>
+                <div className="flex items-center gap-6 mb-6">
+                    <div className="p-4 bg-red-500 text-white rounded-full animate-pulse shadow-lg shadow-red-500/40">
+                        <HeartHandshake size={32} />
+                    </div>
+                    <div>
+                        <h2 className={`text-2xl md:text-3xl font-bold ${theme === 'dark' ? 'text-red-200' : 'text-red-800'}`}>
+                            {t.crisisTitle || "Crisis Support Mode"}
+                        </h2>
+                        <p className={`text-lg font-medium ${theme === 'dark' ? 'text-red-300' : 'text-red-700'}`}>
+                            {t.crisisDesc || "We detected signs of distress. You are not alone."}
+                        </p>
+                    </div>
+                </div>
+                
+                {/* Validation Message from AI */}
+                <div className={`p-6 rounded-2xl mb-8 ${theme === 'dark' ? 'bg-black/20 border border-white/5' : 'bg-white border border-red-100'}`}>
+                    <p className={`text-xl md:text-2xl font-medium leading-relaxed italic ${theme === 'dark' ? 'text-red-100' : 'text-red-900'}`}>
+                        "{result.emotionalSubtext}"
+                    </p>
+                </div>
+
+                {/* Hotlines Grid */}
+                <h3 className={`text-sm font-bold uppercase tracking-wider mb-4 opacity-80 ${theme === 'dark' ? 'text-red-200' : 'text-red-800'}`}>Emergency Resources</h3>
+                <div className="grid md:grid-cols-2 gap-4 mb-8">
+                    <div className={`p-5 rounded-2xl flex items-center gap-4 ${theme === 'dark' ? 'bg-red-900/40' : 'bg-white'} border border-red-500/20 shadow-sm`}>
+                         <Phone size={24} className="text-red-500" />
+                         <div>
+                             <p className={`font-bold text-xs uppercase opacity-60 ${theme === 'dark' ? 'text-red-200' : 'text-red-900'}`}>USA / Canada</p>
+                             <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-red-900'}`}>988</p>
+                         </div>
+                    </div>
+                    <div className={`p-5 rounded-2xl flex items-center gap-4 ${theme === 'dark' ? 'bg-red-900/40' : 'bg-white'} border border-red-500/20 shadow-sm`}>
+                         <Phone size={24} className="text-red-500" />
+                         <div>
+                             <p className={`font-bold text-xs uppercase opacity-60 ${theme === 'dark' ? 'text-red-200' : 'text-red-900'}`}>UK</p>
+                             <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-red-900'}`}>111</p>
+                         </div>
+                    </div>
+                    <div className={`p-5 rounded-2xl flex items-center gap-4 ${theme === 'dark' ? 'bg-red-900/40' : 'bg-white'} border border-red-500/20 shadow-sm`}>
+                         <Phone size={24} className="text-red-500" />
+                         <div>
+                             <p className={`font-bold text-xs uppercase opacity-60 ${theme === 'dark' ? 'text-red-200' : 'text-red-900'}`}>Europe</p>
+                             <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-red-900'}`}>112</p>
+                         </div>
+                    </div>
+                     <div className={`p-5 rounded-2xl flex items-center gap-4 ${theme === 'dark' ? 'bg-red-900/40' : 'bg-white'} border border-red-500/20 shadow-sm`}>
+                         <Phone size={24} className="text-red-500" />
+                         <div>
+                             <p className={`font-bold text-xs uppercase opacity-60 ${theme === 'dark' ? 'text-red-200' : 'text-red-900'}`}>Crisis Text Line</p>
+                             <p className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-red-900'}`}>Text HOME to 741741</p>
+                         </div>
+                    </div>
+                </div>
+
+                {/* Disclaimer */}
+                <p className={`text-sm opacity-70 text-center max-w-2xl mx-auto leading-relaxed ${theme === 'dark' ? 'text-red-300' : 'text-red-800'}`}>
+                    {t.disclaimer || "Neuro-Sense is an AI tool. If you or someone else is in immediate danger, please call emergency services."}
+                </p>
+            </div>
+
+            {/* Suggested Supportive Responses */}
+             <div className="max-w-3xl mx-auto">
+                 <h3 className={`text-xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>
+                    Supportive Responses
+                 </h3>
+                 <div className="space-y-4">
+                    {result.suggestedResponse.map((reply, idx) => (
+                        <ReplyCard key={idx} text={reply} label="Supportive" theme={theme} />
+                    ))}
+                 </div>
+             </div>
+        </div>
+    )
+  }
+
+  // --- STANDARD DASHBOARD LOGIC ---
 
   const [moreRepliesOpen, setMoreRepliesOpen] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);

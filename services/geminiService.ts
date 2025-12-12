@@ -22,8 +22,8 @@ const analysisSchema: Schema = {
   properties: {
     riskLevel: {
       type: Type.STRING,
-      enum: ["Safe", "Caution", "Conflict"],
-      description: "The emotional safety level of the message."
+      enum: ["Safe", "Caution", "Conflict", "Crisis"],
+      description: "The emotional safety level of the message. Use 'Crisis' for dangerous or suicidal content."
     },
     confidenceScore: {
       type: Type.INTEGER,
@@ -35,7 +35,7 @@ const analysisSchema: Schema = {
     },
     emotionalSubtext: {
       type: Type.STRING,
-      description: "A detailed explanation of the hidden emotions, tone, and intent."
+      description: "A detailed explanation of the hidden emotions, tone, and intent. In Crisis mode, provide validation."
     },
     vocalTone: {
       type: Type.STRING,
@@ -44,7 +44,7 @@ const analysisSchema: Schema = {
     suggestedResponse: {
       type: Type.ARRAY,
       items: { type: Type.STRING },
-      description: "3 distinct draft replies varying in tone (e.g., Professional, Friendly, Firm)."
+      description: "3 distinct draft replies. In Crisis mode, these must be supportive and encourage professional help."
     }
   },
   required: ["riskLevel", "confidenceScore", "literalMeaning", "emotionalSubtext", "vocalTone", "suggestedResponse"]
@@ -144,6 +144,18 @@ export const analyzeMessageContext = async (
   }
 
   const systemInstruction = `
+    SAFETY OVERRIDE (HIGHEST PRIORITY):
+    If the input text or audio indicates suicidal ideation, self-harm, severe violence, or immediate danger:
+    1. Set 'riskLevel' to "Crisis".
+    2. Set 'confidenceScore' to 100.
+    3. In 'emotionalSubtext', provide a validating, compassionate statement acknowledging the pain (e.g., "It sounds like you are in a lot of pain right now. Your feelings are valid.").
+    4. In 'literalMeaning', summarize the distress briefly without judgment.
+    5. In 'suggestedResponse', provide 3 responses:
+       - Response 1: A supportive message encouraging connection or professional help.
+       - Response 2: A simple text reaching out for connection (e.g. "I'm going through a tough time, can we talk?").
+       - Response 3: A boundary setting text if relevant, or another supportive option.
+    6. Do NOT provide standard social analysis. Focus entirely on safety and support.
+
     You are an expert assistive tool for neurodivergent individuals (Autism/ADHD).
     Decode the message into clear sections.
     

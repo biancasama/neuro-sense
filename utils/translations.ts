@@ -84,7 +84,12 @@ export const translations: Record<Language, any> = {
     noMemories: "No saved conversations yet.",
     viewMemories: "Memories",
     memorySaved: "Memory saved.",
-    delete: "Delete"
+    delete: "Delete",
+
+    // Crisis
+    crisisTitle: "Crisis Support Mode",
+    crisisDesc: "We detected signs of severe distress. You are not alone.",
+    disclaimer: "Disclaimer: Neuro-Sense is an AI tool and not a substitute for professional mental health care. If you or someone else is in danger, please call emergency services immediately."
   },
   es: {
     heroSubtitle: "Decodificador de contexto. Entiende el tono. Responde con confianza.",
@@ -166,7 +171,12 @@ export const translations: Record<Language, any> = {
     noMemories: "Aún no hay conversaciones guardadas.",
     viewMemories: "Memorias",
     memorySaved: "Memoria guardada.",
-    delete: "Eliminar"
+    delete: "Eliminar",
+    
+    // Crisis
+    crisisTitle: "Modo de Apoyo en Crisis",
+    crisisDesc: "Hemos detectado signos de angustia severa. No estás solo/a.",
+    disclaimer: "Descargo de responsabilidad: Neuro-Sense es una herramienta de IA y no sustituye la atención profesional de salud mental. Si tú o alguien más está en peligro, llama a los servicios de emergencia de inmediato."
   },
   fr: {
     heroSubtitle: "Décodeur de contexte. Comprenez le ton. Répondez avec confiance.",
@@ -248,7 +258,12 @@ export const translations: Record<Language, any> = {
     noMemories: "Aucune conversation enregistrée.",
     viewMemories: "Mémoires",
     memorySaved: "Mémoire enregistrée.",
-    delete: "Supprimer"
+    delete: "Supprimer",
+
+    // Crisis
+    crisisTitle: "Mode de Soutien de Crise",
+    crisisDesc: "Nous avons détecté des signes de détresse sévère. Vous n'êtes pas seul(e).",
+    disclaimer: "Avertissement : Neuro-Sense est un outil d'IA et ne remplace pas les soins professionnels de santé mentale. Si vous ou quelqu'un d'autre êtes en danger, veuillez appeler immédiatement les services d'urgence."
   },
   de: {
     heroSubtitle: "Kontext-Decoder. Verstehe den Ton. Antworte mit Zuversicht.",
@@ -330,7 +345,12 @@ export const translations: Record<Language, any> = {
     noMemories: "Noch keine Gespräche gespeichert.",
     viewMemories: "Erinnerungen",
     memorySaved: "Gespeichert.",
-    delete: "Löschen"
+    delete: "Löschen",
+
+    // Crisis
+    crisisTitle: "Krisenunterstützungsmodus",
+    crisisDesc: "Wir haben Anzeichen schwerer Belastung festgestellt. Sie sind nicht allein.",
+    disclaimer: "Haftungsausschluss: Neuro-Sense ist ein KI-Tool und kein Ersatz für professionelle psychologische Hilfe. Wenn Sie oder jemand anderes in Gefahr ist, rufen Sie bitte sofort den Notdienst."
   },
   it: {
     heroSubtitle: "Decodificatore di contesto. Comprendi il tono. Rispondi con fiducia.",
@@ -412,7 +432,12 @@ export const translations: Record<Language, any> = {
     noMemories: "Nessuna conversazione salvata.",
     viewMemories: "Ricordi",
     memorySaved: "Memoria salvata.",
-    delete: "Elimina"
+    delete: "Elimina",
+
+    // Crisis
+    crisisTitle: "Modalità di Supporto Crisi",
+    crisisDesc: "Abbiamo rilevato segni di grave disagio. Non sei solo.",
+    disclaimer: "Disclaimer: Neuro-Sense è uno strumento di IA e non sostituisce l'assistenza professionale per la salute mentale. Se tu o qualcun altro siete in pericolo, chiamate immediatamente i servizi di emergenza."
   },
   pt: {
     heroSubtitle: "Decodificador de contexto. Entenda o tom. Responda com confiança.",
@@ -494,7 +519,12 @@ export const translations: Record<Language, any> = {
     noMemories: "Nenhuma conversa salva ainda.",
     viewMemories: "Memórias",
     memorySaved: "Memória salva.",
-    delete: "Excluir"
+    delete: "Excluir",
+
+    // Crisis
+    crisisTitle: "Modo de Apoio à Crise",
+    crisisDesc: "Detectamos sinais de sofrimento grave. Você não está sozinho.",
+    disclaimer: "Isenção de responsabilidade: O Neuro-Sense é uma ferramenta de IA e não substitui o atendimento profissional de saúde mental. Se você ou outra pessoa estiver em perigo, ligue imediatamente para os serviços de emergência."
   },
   ja: {
     heroSubtitle: "コンテキストデコーダー。トーンを理解。自信を持って返信。",
@@ -576,6 +606,11 @@ export const translations: Record<Language, any> = {
     noMemories: "保存された会話はまだありません。",
     viewMemories: "思い出",
     memorySaved: "メモリが保存されました。",
-    delete: "削除"
+    delete: "削除",
+
+    // Crisis
+    crisisTitle: "危機支援モード",
+    crisisDesc: "深刻な苦痛の兆候が検出されました。あなたは一人ではありません。",
+    disclaimer: "免責事項：Neuro-SenseはAIツールであり、専門的なメンタルヘルスケアの代わりにはなりません。あなたや他の誰かが危険にさらされている場合は、直ちに緊急サービスに電話してください。"
   }
 };

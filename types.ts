@@ -2,7 +2,8 @@
 export enum RiskLevel {
   SAFE = "Safe",
   CAUTION = "Caution",
-  CONFLICT = "Conflict"
+  CONFLICT = "Conflict",
+  CRISIS = "Crisis"
 }
 
 export interface AnalysisResult {
