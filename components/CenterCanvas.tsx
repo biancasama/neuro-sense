@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { PenTool, MoveHorizontal, Wand2, AlertTriangle, RefreshCw, Check, Globe } from 'lucide-react';
+import { PenTool, MoveHorizontal, Wand2, AlertTriangle, RefreshCw, Check, Globe, Book } from 'lucide-react';
 import { refineMessage } from '../services/geminiService';
+import ScriptLibrary from './ScriptLibrary';
 
 interface CenterCanvasProps {
   t: any;
@@ -24,6 +25,9 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ t }) => {
   
   const [isRefining, setIsRefining] = useState(false);
   const [refinementResult, setRefinementResult] = useState<{ rewrittenText: string; bluntnessAlert: string | null; explanation: string } | null>(null);
+
+  // Script Library State
+  const [showScriptLibrary, setShowScriptLibrary] = useState(false);
 
   // Tone labels based on slider logic
   const getToneLabel = () => {
@@ -60,8 +64,13 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ t }) => {
     }
   };
 
+  const handleInsertScript = (script: string) => {
+    setDraft(prev => (prev ? prev + "\n" + script : script));
+    setShowScriptLibrary(false);
+  };
+
   return (
-    <div className="h-full bg-white flex flex-col relative">
+    <div className="h-full bg-white flex flex-col relative overflow-hidden">
       {/* 1. Tone Toolbar */}
       <div className="h-20 border-b border-stone-100 flex items-center justify-between px-6 bg-white/80 backdrop-blur-sm z-10 sticky top-0 gap-6">
         
@@ -107,15 +116,24 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ t }) => {
            </div>
         </div>
 
-        {/* Right: Check Action */}
-        <button 
-          onClick={handleRefine}
-          disabled={!draft.trim() || isRefining}
-          className="bg-forest text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm hover:shadow-md hover:bg-forest/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
-        >
-          {isRefining ? <RefreshCw size={14} className="animate-spin" /> : <Wand2 size={14} />}
-          Check Tone
-        </button>
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2">
+            <button
+                onClick={() => setShowScriptLibrary(true)}
+                className="bg-stone-100 text-stone-600 p-2 rounded-lg hover:bg-stone-200 transition-colors"
+                title="Open Script Library"
+            >
+                <Book size={16} />
+            </button>
+            <button 
+            onClick={handleRefine}
+            disabled={!draft.trim() || isRefining}
+            className="bg-forest text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm hover:shadow-md hover:bg-forest/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+            >
+            {isRefining ? <RefreshCw size={14} className="animate-spin" /> : <Wand2 size={14} />}
+            Check Tone
+            </button>
+        </div>
       </div>
 
       {/* 2. Drafting Area */}
@@ -183,6 +201,15 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ t }) => {
                  </div>
               </div>
            </div>
+        )}
+        
+        {/* --- SCRIPT LIBRARY MODAL --- */}
+        {showScriptLibrary && (
+            <ScriptLibrary 
+                onSelectScript={handleInsertScript} 
+                onClose={() => setShowScriptLibrary(false)}
+                culture={culturalContext}
+            />
         )}
 
       </div>

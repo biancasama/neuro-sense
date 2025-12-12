@@ -313,6 +313,43 @@ export const refineMessage = async (
   }
 };
 
+// Generate Social Script for specific scenarios
+export const generateSocialScript = async (
+  scenario: string,
+  culture: string
+): Promise<string> => {
+   if (!process.env.API_KEY) {
+    throw new Error("API Key is missing.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+  const prompt = `
+    Task: Generate a "Social Script" (a safe, polite, effective template message) for a neurodivergent user who is feeling stuck.
+
+    Scenario: ${scenario}
+    Cultural Context: ${culture}
+
+    Requirements:
+    - The script should be fill-in-the-blank style where necessary (use [brackets]).
+    - It must be socially safe and polite, avoiding accidental rudeness.
+    - Keep it concise.
+    - Return ONLY the script text, no markdown, no quotes.
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt
+    });
+
+    return response.text || "I couldn't generate a script right now.";
+  } catch (error) {
+    console.error("Script Gen Error:", error);
+    return "Error generating script.";
+  }
+}
+
 // New function for Google Maps Grounding with Safety Filtering
 export const getNearbySupportPlaces = async (lat: number, lng: number, riskLevel: RiskLevel): Promise<GroundingData> => {
   if (!process.env.API_KEY) {
