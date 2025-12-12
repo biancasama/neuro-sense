@@ -7,9 +7,10 @@ interface Props {
   result: AnalysisResult | null;
   onSave: () => void;
   t: any;
+  compact?: boolean;
 }
 
-const VibeCheckGauge: React.FC<{ level: RiskLevel, t: any }> = ({ level, t }) => {
+const VibeCheckGauge: React.FC<{ level: RiskLevel, t: any, compact?: boolean }> = ({ level, t, compact }) => {
   const levels = [RiskLevel.SAFE, RiskLevel.CAUTION, RiskLevel.CONFLICT];
   
   const getStyles = (itemLevel: RiskLevel, isActive: boolean) => {
@@ -26,7 +27,7 @@ const VibeCheckGauge: React.FC<{ level: RiskLevel, t: any }> = ({ level, t }) =>
   };
 
   return (
-    <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm">
+    <div className={`bg-white rounded-2xl border border-stone-200 shadow-sm ${compact ? 'p-3' : 'p-5'}`}>
       <h3 className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-4 flex items-center gap-2">
         <Activity size={16} />
         {t.vibeCheck}
@@ -37,14 +38,16 @@ const VibeCheckGauge: React.FC<{ level: RiskLevel, t: any }> = ({ level, t }) =>
           <div 
             key={l}
             className={`
-              flex-1 py-4 px-2 rounded-xl border text-center transition-all duration-500 ease-out flex flex-col items-center gap-2
+              flex-1 rounded-xl border text-center transition-all duration-500 ease-out flex flex-col items-center gap-2
+              ${compact ? 'py-2 px-1' : 'py-4 px-2'}
               ${getStyles(l, level === l)}
             `}
           >
-            {l === RiskLevel.SAFE && <ShieldCheck size={24} strokeWidth={level === l ? 2.5 : 1.5} />}
-            {l === RiskLevel.CAUTION && <AlertTriangle size={24} strokeWidth={level === l ? 2.5 : 1.5} />}
-            {l === RiskLevel.CONFLICT && <Zap size={24} strokeWidth={level === l ? 2.5 : 1.5} />}
-            <span className="text-xs font-bold uppercase tracking-widest">{l}</span>
+            {/* Conditional icon sizing for compact mode */}
+            {l === RiskLevel.SAFE && <ShieldCheck size={compact ? 18 : 24} strokeWidth={level === l ? 2.5 : 1.5} />}
+            {l === RiskLevel.CAUTION && <AlertTriangle size={compact ? 18 : 24} strokeWidth={level === l ? 2.5 : 1.5} />}
+            {l === RiskLevel.CONFLICT && <Zap size={compact ? 18 : 24} strokeWidth={level === l ? 2.5 : 1.5} />}
+            {!compact && <span className="text-xs font-bold uppercase tracking-widest">{l}</span>}
           </div>
         ))}
       </div>
@@ -52,7 +55,7 @@ const VibeCheckGauge: React.FC<{ level: RiskLevel, t: any }> = ({ level, t }) =>
   );
 };
 
-const AnalysisDashboard: React.FC<Props> = ({ result, onSave, t }) => {
+const AnalysisDashboard: React.FC<Props> = ({ result, onSave, t, compact = false }) => {
   const [isSaved, setIsSaved] = useState(false);
 
   if (!result) return null;
@@ -95,10 +98,10 @@ const AnalysisDashboard: React.FC<Props> = ({ result, onSave, t }) => {
   const theme = getRiskColors(result.riskLevel);
 
   return (
-    <div className="w-full space-y-8 overflow-y-auto pr-2 custom-scrollbar">
+    <div className={`w-full overflow-y-auto pr-2 custom-scrollbar ${compact ? 'space-y-4' : 'space-y-8'}`}>
       
       {/* 0. Vibe Check Gauge */}
-      <VibeCheckGauge level={result.riskLevel} t={t} />
+      <VibeCheckGauge level={result.riskLevel} t={t} compact={compact} />
 
       {/* 1. Literal Meaning Section */}
       <section className="relative">
@@ -106,13 +109,13 @@ const AnalysisDashboard: React.FC<Props> = ({ result, onSave, t }) => {
           <BookOpen size={16} />
           {t.translation}
         </h3>
-        <p className="text-stone-800 text-lg leading-relaxed font-medium">
+        <p className={`text-stone-800 leading-relaxed font-medium ${compact ? 'text-base' : 'text-lg'}`}>
           {result.literalMeaning}
         </p>
       </section>
 
       {/* 2. Emotional Subtext Section */}
-      <section className={`rounded-2xl p-6 border ${theme.bg} ${theme.border} backdrop-blur-sm`}>
+      <section className={`rounded-2xl border ${theme.bg} ${theme.border} backdrop-blur-sm ${compact ? 'p-4' : 'p-6'}`}>
         <div className="flex items-center justify-between mb-4">
            <h3 className={`text-sm font-bold uppercase tracking-wider ${theme.text} flex items-center gap-2`}>
             <Heart size={16} />
@@ -132,7 +135,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, onSave, t }) => {
 
       {/* 2.5 Vocal Tone Section (Conditional) */}
       {result.vocalTone && !result.vocalTone.toLowerCase().includes("text only") && (
-        <section className="bg-purple-50/50 rounded-2xl p-6 border border-purple-100 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <section className={`bg-purple-50/50 rounded-2xl border border-purple-100 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-700 ${compact ? 'p-4' : 'p-6'}`}>
            <h3 className="text-sm font-bold uppercase tracking-wider text-purple-900 flex items-center gap-2 mb-3">
             <Mic size={16} />
             {t.vocalToneLabel}
@@ -151,7 +154,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, onSave, t }) => {
         </h3>
         <div className="space-y-4">
           {result.suggestedResponse.map((reply, index) => (
-            <ReplyCard key={index} text={reply} t={t} />
+            <ReplyCard key={index} text={reply} t={t} compact={compact} />
           ))}
         </div>
       </section>
@@ -162,11 +165,12 @@ const AnalysisDashboard: React.FC<Props> = ({ result, onSave, t }) => {
           onClick={handleSaveClick}
           disabled={isSaved}
           className={`
-            flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold transition-all shadow-sm
+            flex items-center gap-2 rounded-xl font-semibold transition-all shadow-sm
             ${isSaved 
               ? 'bg-emerald-100 text-emerald-700' 
               : 'bg-white border border-stone-300 text-stone-600 hover:bg-stone-50 hover:text-stone-800'
             }
+            ${compact ? 'px-4 py-2 text-sm' : 'px-6 py-2.5'}
           `}
         >
            {isSaved ? <Check size={18} /> : <Bookmark size={18} />}
@@ -178,7 +182,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, onSave, t }) => {
   );
 };
 
-const ReplyCard: React.FC<{ text: string, t: any }> = ({ text, t }) => {
+const ReplyCard: React.FC<{ text: string, t: any, compact?: boolean }> = ({ text, t, compact }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -188,8 +192,8 @@ const ReplyCard: React.FC<{ text: string, t: any }> = ({ text, t }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl p-5 border border-stone-200 hover:border-forest/30 hover:shadow-md transition-all group relative">
-      <p className="text-stone-700 text-base leading-relaxed mb-8 font-medium">
+    <div className={`bg-white rounded-xl border border-stone-200 hover:border-forest/30 hover:shadow-md transition-all group relative ${compact ? 'p-3' : 'p-5'}`}>
+      <p className={`text-stone-700 leading-relaxed mb-8 font-medium ${compact ? 'text-sm' : 'text-base'}`}>
         "{text}"
       </p>
       <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
