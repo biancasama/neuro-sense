@@ -76,19 +76,19 @@ const RightDecoder: React.FC<RightDecoderProps> = ({ onAnalyze, isAnalyzing, res
              <div className="flex flex-wrap justify-center gap-2 px-2">
                <button 
                 onClick={() => handleQuickAction("sarcasm")}
-                className="px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-medium text-stone-600 hover:border-purple-300 hover:text-purple-600 hover:bg-purple-50 transition-all"
+                className="px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-medium text-stone-600 hover:border-purple-300 hover:text-purple-600 hover:bg-purple-50 hover:shadow-sm hover:-translate-y-0.5 transition-all transform"
                >
                  Detect Sarcasm
                </button>
                <button 
                 onClick={() => handleQuickAction("action_items")}
-                className="px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-medium text-stone-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 transition-all"
+                className="px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-medium text-stone-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 hover:shadow-sm hover:-translate-y-0.5 transition-all transform"
                >
                  Identify Action Items
                </button>
                <button 
                 onClick={() => handleQuickAction("explain")}
-                className="px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-medium text-stone-600 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                className="px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-medium text-stone-600 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 hover:shadow-sm hover:-translate-y-0.5 transition-all transform"
                >
                  Explain Subtext
                </button>

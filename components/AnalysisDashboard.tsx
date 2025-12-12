@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { AnalysisResult, RiskLevel } from '../types';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Mic } from 'lucide-react';
 
 interface Props {
   result: AnalysisResult | null;
@@ -11,13 +11,16 @@ interface Props {
   compact?: boolean;
 }
 
-const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact }) => {
+const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
   if (!result) return null;
 
   const textPrimary = theme === 'dark' ? 'text-white' : 'text-stone-900';
   const textSecondary = theme === 'dark' ? 'text-stone-400' : 'text-stone-500';
   const cardBg = theme === 'dark' ? 'bg-[#2C2C2C]' : 'bg-[#F9FAFB]';
   const borderCol = theme === 'dark' ? 'border-[#383838]' : 'border-stone-100';
+
+  // Check if vocal tone is meaningful (not just text fallback)
+  const hasVocalAnalysis = result.vocalTone && !result.vocalTone.toLowerCase().includes("text only");
 
   return (
     <div className="space-y-12 pb-12">
@@ -26,6 +29,21 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact }) => {
       <div>
         <h2 className={`text-3xl md:text-4xl font-bold mb-8 ${textPrimary}`}>Interpretations</h2>
         
+        {/* Vocal Tone Section (Conditional) */}
+        {hasVocalAnalysis && (
+          <div className={`mb-8 p-6 rounded-2xl border ${theme === 'dark' ? 'bg-indigo-900/20 border-indigo-500/30' : 'bg-indigo-50 border-indigo-100'}`}>
+            <div className="flex items-center gap-2 mb-3">
+               <Mic size={20} className={theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'} />
+               <h3 className={`text-sm font-bold uppercase tracking-wide ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-700'}`}>
+                 {t.vocalToneLabel || "Vocal Tone Analysis"}
+               </h3>
+            </div>
+            <p className={`text-xl font-medium leading-relaxed ${textPrimary}`}>
+              {result.vocalTone}
+            </p>
+          </div>
+        )}
+
         {/* Summary */}
         <div className="mb-8 p-6 rounded-2xl border border-transparent bg-opacity-50" style={{ backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }}>
           <h3 className={`text-sm font-bold uppercase tracking-wide mb-3 ${textSecondary}`}>Executive Summary</h3>
@@ -35,20 +53,12 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact }) => {
         </div>
 
         {/* Possible Interpretations List */}
-        <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-3 md:gap-6">
-          <div className="md:col-span-3 mb-2 md:mb-0">
+        <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 md:gap-6">
+          <div className="md:col-span-2 mb-2 md:mb-0">
              <h3 className={`text-sm font-bold uppercase tracking-wide mb-4 ${textSecondary}`}>Key Signals</h3>
           </div>
           
-          {/* Card 1: Tone/Vibe */}
-          <InterpretationCard 
-            title={result.vocalTone && !result.vocalTone.includes("Text only") ? result.vocalTone : "Neutral / Ambiguous tone"} 
-            label="Vocal/Tone"
-            confidence="Medium" 
-            theme={theme}
-          />
-
-           {/* Card 2: Literal */}
+           {/* Card 1: Literal */}
            <InterpretationCard 
             title={result.literalMeaning} 
             label="Literal Meaning"
@@ -56,7 +66,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact }) => {
             theme={theme}
           />
           
-          {/* Card 3: Risk Level */}
+          {/* Card 2: Risk Level */}
           <InterpretationCard 
             title={result.riskLevel === 'Safe' ? 'Safe to reply' : (result.riskLevel === 'Caution' ? 'Proceed with caution' : 'Conflict detected')} 
             label="Risk Assessment"
