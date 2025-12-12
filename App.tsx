@@ -6,8 +6,9 @@ import InputSection from './components/InputSection';
 import AnalysisDashboard from './components/AnalysisDashboard';
 import Header, { BrainLogo } from './components/Header';
 import { translations } from './utils/translations';
-import { Moon, Sun, ArrowRight, Youtube, Instagram, Twitter, MessageCircle, Music } from 'lucide-react';
+import { Moon, Sun, ArrowRight, Youtube, Instagram, Twitter, Music } from 'lucide-react';
 import { PhoneMockupIllustration } from './components/Illustrations';
+import BodyDoubleAvatar from './components/BodyDoubleAvatar';
 
 // Footer Component tailored for the App Card
 const Footer = ({ theme, t, sensorySafe }: { theme: 'light' | 'dark', t: any, sensorySafe: boolean }) => {
@@ -112,7 +113,8 @@ const App: React.FC = () => {
   // Accessibility State
   const [accessibility, setAccessibility] = useState({
     dyslexic: false,
-    sensorySafe: false
+    sensorySafe: false,
+    coPilot: true, // Default enabled
   });
 
   // Navigation State: 'home' (includes hero + input) | 'results'
@@ -276,7 +278,7 @@ const App: React.FC = () => {
             language={language}
             onLanguageChange={setLanguage}
             accessibility={accessibility}
-            onToggleAccessibility={(key) => setAccessibility(prev => ({ ...prev, [key]: !prev[key] }))}
+            onToggleAccessibility={(key) => setAccessibility(prev => ({ ...prev, [key]: !prev[key as keyof typeof prev] }))}
           />
         </div>
 
@@ -386,6 +388,12 @@ const App: React.FC = () => {
           )}
 
         </div>
+        
+        {/* Co-Pilot Body Double Avatar (Bottom Left) */}
+        {!accessibility.sensorySafe && (
+             <BodyDoubleAvatar theme={theme} enabled={accessibility.coPilot} />
+        )}
+
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronLeft, Globe, Check, Eye, Type, Sun, CloudOff, LogIn, UserPlus } from 'lucide-react';
+import { ChevronLeft, Globe, Check, Eye, Type, Sun, CloudOff, LogIn, UserPlus, Bot } from 'lucide-react';
 import { Language } from '../types';
 
 interface HeaderProps {
@@ -9,8 +9,8 @@ interface HeaderProps {
   theme: 'light' | 'dark';
   language: Language;
   onLanguageChange: (lang: Language) => void;
-  accessibility: { dyslexic: boolean; sensorySafe: boolean };
-  onToggleAccessibility: (key: 'dyslexic' | 'sensorySafe') => void;
+  accessibility: { dyslexic: boolean; sensorySafe: boolean; coPilot: boolean };
+  onToggleAccessibility: (key: 'dyslexic' | 'sensorySafe' | 'coPilot') => void;
 }
 
 // Re-introducing the BrainLogo for shared use
@@ -152,7 +152,7 @@ const Header: React.FC<HeaderProps> = ({
 
                    <button
                      onClick={() => onToggleAccessibility('sensorySafe')}
-                     className={`w-full text-left px-3 py-3 rounded-lg text-sm flex items-center justify-between transition-colors ${theme === 'dark' ? 'hover:bg-[#333] text-stone-200' : 'hover:bg-stone-50 text-stone-700'}`}
+                     className={`w-full text-left px-3 py-3 rounded-lg text-sm flex items-center justify-between transition-colors mb-2 ${theme === 'dark' ? 'hover:bg-[#333] text-stone-200' : 'hover:bg-stone-50 text-stone-700'}`}
                    >
                      <span className="flex items-center gap-3">
                        <CloudOff size={16} />
@@ -162,9 +162,24 @@ const Header: React.FC<HeaderProps> = ({
                         <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${accessibility.sensorySafe ? 'left-6' : 'left-1'}`}></div>
                      </div>
                    </button>
+
+                   <div className="px-3 py-2 text-xs font-bold uppercase text-stone-400 border-t border-stone-100 mt-1">Focus Tools</div>
+
+                   <button
+                     onClick={() => onToggleAccessibility('coPilot')}
+                     className={`w-full text-left px-3 py-3 rounded-lg text-sm flex items-center justify-between transition-colors ${theme === 'dark' ? 'hover:bg-[#333] text-stone-200' : 'hover:bg-stone-50 text-stone-700'}`}
+                   >
+                     <span className="flex items-center gap-3">
+                       <Bot size={16} />
+                       Co-Pilot Avatar
+                     </span>
+                     <div className={`w-10 h-5 rounded-full relative transition-colors ${accessibility.coPilot ? 'bg-emerald-500' : 'bg-stone-300'}`}>
+                        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${accessibility.coPilot ? 'left-6' : 'left-1'}`}></div>
+                     </div>
+                   </button>
                    
                    <p className="px-3 py-2 text-[10px] text-stone-500 leading-tight">
-                     Sensory Safe removes images, reduces contrast, and simplifies the interface.
+                     Body doubling assistant for encouragement.
                    </p>
                 </div>
               </>
