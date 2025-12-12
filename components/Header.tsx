@@ -11,7 +11,7 @@ interface HeaderProps {
 }
 
 // Stylized brain logo with interconnected arrows matching the reference image
-const BrainLogo = ({ size = 48, className = "" }: { size?: number, className?: string }) => (
+export const BrainLogo = ({ size = 48, className = "" }: { size?: number, className?: string }) => (
   <svg 
     width={size} 
     height={size} 
