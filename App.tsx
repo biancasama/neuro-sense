@@ -161,7 +161,12 @@ const App: React.FC = () => {
          if ('geolocation' in navigator) {
            navigator.geolocation.getCurrentPosition(async (position) => {
              try {
-                const places = await getNearbySupportPlaces(position.coords.latitude, position.coords.longitude);
+                // Pass data.riskLevel here to apply strict filtering
+                const places = await getNearbySupportPlaces(
+                  position.coords.latitude, 
+                  position.coords.longitude,
+                  data.riskLevel
+                );
                 setNearbyPlaces(places);
              } catch (geoErr) {
                console.warn("Failed to get nearby places", geoErr);

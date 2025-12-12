@@ -23,7 +23,7 @@ const analysisSchema: Schema = {
     riskLevel: {
       type: Type.STRING,
       enum: ["Safe", "Caution", "Conflict", "Concern", "Crisis"],
-      description: "The emotional safety level. Use 'Concern' for distress/hopelessness. Use 'Crisis' ONLY for self-harm/suicide intent."
+      description: "The emotional safety level. Use 'Concern' for distress/hopelessness. Use 'Crisis' for immediate danger (self-harm, violence, physical threat)."
     },
     confidenceScore: {
       type: Type.INTEGER,
@@ -157,13 +157,18 @@ export const analyzeMessageContext = async (
        - Response 2: A "Validation" message (e.g., "That sounds incredibly heavy. I'm here for you.").
        - Response 3: A low-pressure offer of support.
 
-    **LEVEL 2: CRISIS MODE (Immediate Danger / Self-Harm)**
-    Triggers: Explicit suicidal ideation ("I want to end it", "I don't want to be here"), self-harm intent, or severe threats of violence.
+    **LEVEL 2: CRISIS MODE (Immediate Danger / Self-Harm / External Threat)**
+    Triggers: 
+    - Explicit suicidal ideation ("I want to end it", "I don't want to be here")
+    - Self-harm intent
+    - Severe threats of violence (from others or self)
+    - Expressions of immediate physical danger (e.g., "I'm scared for my safety", "I'm being followed", "domestic violence", "emergency").
+    
     Action:
     1. Set 'riskLevel' to "Crisis".
     2. Set 'confidenceScore' to 100.
-    3. In 'emotionalSubtext', provide a validating statement acknowledging the pain.
-    4. In 'suggestedResponse', provide supportive messages encouraging connection or professional help.
+    3. In 'emotionalSubtext', provide a validating statement acknowledging the severity of the situation.
+    4. In 'suggestedResponse', provide supportive messages encouraging connection, safety, or professional help (911/Emergency).
     5. Do NOT provide standard social analysis.
 
     **STANDARD ANALYSIS (If Safe)**
@@ -219,18 +224,43 @@ export const analyzeMessageContext = async (
   }
 };
 
-// New function for Google Maps Grounding
-export const getNearbySupportPlaces = async (lat: number, lng: number): Promise<GroundingData> => {
+// New function for Google Maps Grounding with Safety Filtering
+export const getNearbySupportPlaces = async (lat: number, lng: number, riskLevel: RiskLevel): Promise<GroundingData> => {
   if (!process.env.API_KEY) {
     throw new Error("API Key is missing.");
   }
 
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
+  // Triage Prompt Strategy: Strictly filter results based on risk level
+  let promptText = "";
+
+  if (riskLevel === RiskLevel.CRISIS) {
+    promptText = `
+      The user may be in danger. Find nearby emergency services including:
+      1. Police Stations
+      2. Fire Stations
+      3. General Hospitals (Emergency Rooms)
+      4. Psychiatric Emergency Centers
+
+      STRICTLY EXCLUDE: Yoga studios, Pilates, Life Coaches, Spas, Gyms, Massage, and non-medical wellness centers.
+      PRIORITIZE: 24/7 Medical and Safety facilities.
+      List them with their address and open hours.
+    `;
+  } else {
+    // Concern / Default
+    promptText = `
+      Find 3 nearby mental health counseling centers, licensed therapists, or support groups.
+      EXCLUDE: Yoga, Pilates, Spas, and pure fitness centers.
+      Focus on professional psychological support and counseling.
+      List them with their address and open hours.
+    `;
+  }
+
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash", 
-      contents: "Find 3 nearby mental health crisis centers, hospitals, or gentle support groups. List them with their address and open hours. Be brief and supportive.",
+      contents: promptText,
       config: {
         tools: [{ googleMaps: {} }],
         toolConfig: {
