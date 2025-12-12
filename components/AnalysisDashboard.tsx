@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { AnalysisResult, RiskLevel } from '../types';
-import { Copy, Check, Mic, ShieldCheck, AlertTriangle, Zap, Sparkles, Loader2, HeartHandshake, Phone } from 'lucide-react';
+import { Copy, Check, Mic, ShieldCheck, AlertTriangle, Zap, Sparkles, Loader2, HeartHandshake, Phone, Info, LifeBuoy } from 'lucide-react';
 
 interface Props {
   result: AnalysisResult | null;
@@ -14,7 +14,7 @@ interface Props {
 const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
   if (!result) return null;
 
-  // SAFETY OVERRIDE: CRISIS MODE
+  // SAFETY LEVEL 2: CRISIS MODE (Immediate Danger)
   if (result.riskLevel === RiskLevel.CRISIS) {
     return (
         <div className="animate-in fade-in zoom-in-95 duration-500 max-w-4xl mx-auto w-full">
@@ -29,7 +29,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
                             {t.crisisTitle || "Crisis Support Mode"}
                         </h2>
                         <p className={`text-lg font-medium ${theme === 'dark' ? 'text-red-300' : 'text-red-700'}`}>
-                            {t.crisisDesc || "We detected signs of distress. You are not alone."}
+                            {t.crisisDesc || "We detected signs of severe distress. You are not alone."}
                         </p>
                     </div>
                 </div>
@@ -58,20 +58,6 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
                              <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-red-900'}`}>111</p>
                          </div>
                     </div>
-                    <div className={`p-5 rounded-2xl flex items-center gap-4 ${theme === 'dark' ? 'bg-red-900/40' : 'bg-white'} border border-red-500/20 shadow-sm`}>
-                         <Phone size={24} className="text-red-500" />
-                         <div>
-                             <p className={`font-bold text-xs uppercase opacity-60 ${theme === 'dark' ? 'text-red-200' : 'text-red-900'}`}>Europe</p>
-                             <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-red-900'}`}>112</p>
-                         </div>
-                    </div>
-                     <div className={`p-5 rounded-2xl flex items-center gap-4 ${theme === 'dark' ? 'bg-red-900/40' : 'bg-white'} border border-red-500/20 shadow-sm`}>
-                         <Phone size={24} className="text-red-500" />
-                         <div>
-                             <p className={`font-bold text-xs uppercase opacity-60 ${theme === 'dark' ? 'text-red-200' : 'text-red-900'}`}>Crisis Text Line</p>
-                             <p className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-red-900'}`}>Text HOME to 741741</p>
-                         </div>
-                    </div>
                 </div>
 
                 {/* Disclaimer */}
@@ -95,7 +81,14 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
     )
   }
 
-  // --- STANDARD DASHBOARD LOGIC ---
+  // SAFETY LEVEL 1: CONCERN MODE (Distress / Hopelessness)
+  if (result.riskLevel === RiskLevel.CONCERN) {
+     return (
+        <ConcernModeDashboard result={result} theme={theme} t={t} />
+     )
+  }
+
+  // --- STANDARD DASHBOARD LOGIC (Safe / Caution / Conflict) ---
 
   const [moreRepliesOpen, setMoreRepliesOpen] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -152,7 +145,6 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
     }
     
     setIsLoadingMore(true);
-    // Simulate "thinking" time
     setTimeout(() => {
       setIsLoadingMore(false);
       setMoreRepliesOpen(true);
@@ -291,6 +283,91 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
     </div>
   );
 };
+
+// --- Sub-Components ---
+
+const ConcernModeDashboard: React.FC<{ result: AnalysisResult, theme: 'light' | 'dark', t: any }> = ({ result, theme, t }) => {
+    const [showResources, setShowResources] = useState(false);
+
+    return (
+        <div className="space-y-8 animate-in fade-in duration-500">
+            {/* CONCERN BANNER */}
+            <div className={`rounded-3xl p-8 border-2 shadow-xl ${theme === 'dark' ? 'bg-amber-950/40 border-amber-500/40' : 'bg-amber-50 border-amber-200'}`}>
+                <div className="flex flex-col md:flex-row gap-6 md:items-start">
+                    <div className="p-4 bg-amber-500 text-white rounded-full shadow-lg shadow-amber-500/30 flex-shrink-0 w-16 h-16 flex items-center justify-center">
+                        <HeartHandshake size={32} />
+                    </div>
+                    <div className="flex-grow">
+                        <h2 className={`text-2xl font-bold mb-2 ${theme === 'dark' ? 'text-amber-200' : 'text-amber-900'}`}>
+                           {t.concernTitle || "Gentle Concern Needed"}
+                        </h2>
+                        <p className={`text-lg font-medium leading-relaxed ${theme === 'dark' ? 'text-amber-100/90' : 'text-amber-900/80'}`}>
+                            {result.emotionalSubtext}
+                        </p>
+                        
+                        <div className={`mt-6 p-4 rounded-xl border ${theme === 'dark' ? 'bg-black/20 border-amber-500/20' : 'bg-white/60 border-amber-100'}`}>
+                            <h3 className={`text-xs font-bold uppercase tracking-wider mb-2 ${theme === 'dark' ? 'text-amber-300' : 'text-amber-800'}`}>
+                                {t.careAdviceTitle || "Recommended Approach"}
+                            </h3>
+                             <ul className={`space-y-2 text-sm ${theme === 'dark' ? 'text-amber-100' : 'text-amber-900'}`}>
+                                <li className="flex gap-2 items-start"><Info size={16} className="mt-0.5 flex-shrink-0 opacity-70"/> Let them know you are there.</li>
+                                <li className="flex gap-2 items-start"><Info size={16} className="mt-0.5 flex-shrink-0 opacity-70"/> Avoid giving advice or fixing it. Just listen.</li>
+                                <li className="flex gap-2 items-start"><Info size={16} className="mt-0.5 flex-shrink-0 opacity-70"/> Ask how they are feeling right now.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Optional Resources Toggle */}
+                <div className="mt-6 flex justify-end">
+                    <button 
+                        onClick={() => setShowResources(!showResources)}
+                        className={`text-sm font-semibold underline decoration-2 underline-offset-4 hover:opacity-80 transition-opacity ${theme === 'dark' ? 'text-amber-300 decoration-amber-500/50' : 'text-amber-700 decoration-amber-300'}`}
+                    >
+                        {showResources ? "Hide Safety Resources" : "View Optional Safety Resources"}
+                    </button>
+                </div>
+
+                {/* Expandable Resources */}
+                {showResources && (
+                     <div className="mt-6 grid md:grid-cols-2 gap-4 animate-in slide-in-from-top-2 fade-in">
+                        <div className={`p-4 rounded-xl flex items-center gap-3 ${theme === 'dark' ? 'bg-amber-900/40' : 'bg-white'} border border-amber-500/20`}>
+                            <LifeBuoy size={20} className="text-amber-500" />
+                            <div>
+                                <p className={`font-bold text-xs uppercase opacity-70 ${theme === 'dark' ? 'text-amber-200' : 'text-amber-900'}`}>Support Line (USA)</p>
+                                <p className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-amber-900'}`}>988</p>
+                            </div>
+                        </div>
+                        <div className={`p-4 rounded-xl flex items-center gap-3 ${theme === 'dark' ? 'bg-amber-900/40' : 'bg-white'} border border-amber-500/20`}>
+                            <LifeBuoy size={20} className="text-amber-500" />
+                            <div>
+                                <p className={`font-bold text-xs uppercase opacity-70 ${theme === 'dark' ? 'text-amber-200' : 'text-amber-900'}`}>Crisis Text Line</p>
+                                <p className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-amber-900'}`}>Text HOME to 741741</p>
+                            </div>
+                        </div>
+                     </div>
+                )}
+            </div>
+
+            {/* Suggested Replies (Visible in Concern Mode) */}
+            <div>
+                <h2 className={`text-2xl md:text-3xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>
+                    Drafted Responses
+                </h2>
+                <div className="space-y-4 md:grid md:grid-cols-2 md:gap-6 md:space-y-0">
+                    {result.suggestedResponse.map((reply, idx) => (
+                        <ReplyCard 
+                        key={idx} 
+                        text={reply} 
+                        label={idx === 0 ? "Checking In" : (idx === 1 ? "Validation" : "Supportive")} 
+                        theme={theme} 
+                        />
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
+}
 
 interface InterpretationCardProps {
   title: string;

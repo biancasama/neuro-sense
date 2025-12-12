@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { AnalysisResult, RiskLevel } from '../types';
-import { X, Loader2, ShieldCheck, AlertTriangle, Zap, Mic, Square, Music } from 'lucide-react';
+import { X, Loader2, ShieldCheck, AlertTriangle, Zap, Mic, Square, Music, HeartHandshake } from 'lucide-react';
 
 declare var chrome: any;
 
@@ -95,9 +96,19 @@ const ExtensionOverlay: React.FC<Props> = ({ text, onClose }) => {
 
   // Helper for risk colors
   const getRiskColor = (level?: RiskLevel) => {
-    if (level === RiskLevel.CONFLICT) return '#fee2e2'; // Red-100
-    if (level === RiskLevel.CAUTION) return '#fef3c7'; // Amber-100
-    return '#d1fae5'; // Emerald-100
+    if (level === RiskLevel.CRISIS) return '#7f1d1d'; // Red-900
+    if (level === RiskLevel.CONCERN) return '#f97316'; // Orange-500
+    if (level === RiskLevel.CONFLICT) return '#ef4444'; // Red-500
+    if (level === RiskLevel.CAUTION) return '#f59e0b'; // Amber-500
+    return '#10b981'; // Emerald-500
+  };
+
+  const getRiskBg = (level?: RiskLevel) => {
+    if (level === RiskLevel.CRISIS) return '#fca5a5'; 
+    if (level === RiskLevel.CONCERN) return '#ffedd5'; 
+    if (level === RiskLevel.CONFLICT) return '#fee2e2'; 
+    if (level === RiskLevel.CAUTION) return '#fef3c7'; 
+    return '#d1fae5'; 
   };
 
   return (
@@ -186,11 +197,13 @@ const ExtensionOverlay: React.FC<Props> = ({ text, onClose }) => {
             display: 'flex', alignItems: 'center', gap: '6px', 
             padding: '6px 12px', borderRadius: '20px', width: 'fit-content',
             fontSize: '12px', fontWeight: 600,
-            backgroundColor: getRiskColor(result.riskLevel)
+            backgroundColor: getRiskBg(result.riskLevel),
+            color: getRiskColor(result.riskLevel)
           }}>
             {result.riskLevel === RiskLevel.SAFE && <ShieldCheck size={14} />}
             {result.riskLevel === RiskLevel.CAUTION && <AlertTriangle size={14} />}
             {result.riskLevel === RiskLevel.CONFLICT && <Zap size={14} />}
+            {result.riskLevel === RiskLevel.CONCERN && <HeartHandshake size={14} />}
             <span>{result.riskLevel} ({result.confidenceScore}%)</span>
           </div>
 

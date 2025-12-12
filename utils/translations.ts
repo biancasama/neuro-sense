@@ -39,6 +39,7 @@ export const translations: Record<Language, any> = {
     footerTerms: "Terms of Service",
     footerPrivacy: "Privacy Policy",
     footerRefund: "Refund Policy",
+    footerDisclaimer: "Disclaimer",
     footerRights: "Copyright © 2025 Neuro-Sense, Inc. All rights reserved.",
 
     // Existing Keys
@@ -85,6 +86,10 @@ export const translations: Record<Language, any> = {
     viewMemories: "Memories",
     memorySaved: "Memory saved.",
     delete: "Delete",
+    
+    // Concern
+    concernTitle: "Gentle Concern Needed",
+    careAdviceTitle: "Recommended Approach",
 
     // Crisis
     crisisTitle: "Crisis Support Mode",
@@ -126,6 +131,7 @@ export const translations: Record<Language, any> = {
     footerTerms: "Términos de Servicio",
     footerPrivacy: "Política de Privacidad",
     footerRefund: "Política de Reembolso",
+    footerDisclaimer: "Descargo de Responsabilidad",
     footerRights: "Copyright © 2025 Neuro-Sense, Inc. Todos los derechos reservados.",
 
     // Existing
@@ -172,7 +178,11 @@ export const translations: Record<Language, any> = {
     viewMemories: "Memorias",
     memorySaved: "Memoria guardada.",
     delete: "Eliminar",
-    
+
+    // Concern
+    concernTitle: "Se Necesita Preocupación Suave",
+    careAdviceTitle: "Enfoque Recomendado",
+
     // Crisis
     crisisTitle: "Modo de Apoyo en Crisis",
     crisisDesc: "Hemos detectado signos de angustia severa. No estás solo/a.",
@@ -213,6 +223,7 @@ export const translations: Record<Language, any> = {
     footerTerms: "Conditions d'utilisation",
     footerPrivacy: "Politique de confidentialité",
     footerRefund: "Politique de remboursement",
+    footerDisclaimer: "Avertissement",
     footerRights: "Copyright © 2025 Neuro-Sense, Inc. Tous droits réservés.",
 
     // Existing
@@ -260,6 +271,10 @@ export const translations: Record<Language, any> = {
     memorySaved: "Mémoire enregistrée.",
     delete: "Supprimer",
 
+    // Concern
+    concernTitle: "Attention Douce Requise",
+    careAdviceTitle: "Approche Recommandée",
+
     // Crisis
     crisisTitle: "Mode de Soutien de Crise",
     crisisDesc: "Nous avons détecté des signes de détresse sévère. Vous n'êtes pas seul(e).",
@@ -300,6 +315,7 @@ export const translations: Record<Language, any> = {
     footerTerms: "Nutzungsbedingungen",
     footerPrivacy: "Datenschutz",
     footerRefund: "Rückerstattung",
+    footerDisclaimer: "Haftungsausschluss",
     footerRights: "Copyright © 2025 Neuro-Sense, Inc. Alle Rechte vorbehalten.",
 
     // Existing
@@ -347,6 +363,10 @@ export const translations: Record<Language, any> = {
     memorySaved: "Gespeichert.",
     delete: "Löschen",
 
+    // Concern
+    concernTitle: "Sanfte Fürsorge Erforderlich",
+    careAdviceTitle: "Empfohlener Ansatz",
+
     // Crisis
     crisisTitle: "Krisenunterstützungsmodus",
     crisisDesc: "Wir haben Anzeichen schwerer Belastung festgestellt. Sie sind nicht allein.",
@@ -387,6 +407,7 @@ export const translations: Record<Language, any> = {
     footerTerms: "Termini di Servizio",
     footerPrivacy: "Privacy Policy",
     footerRefund: "Rimborsi",
+    footerDisclaimer: "Disclaimer",
     footerRights: "Copyright © 2025 Neuro-Sense, Inc. Tutti i diritti riservati.",
 
     // Existing
@@ -415,9 +436,9 @@ export const translations: Record<Language, any> = {
     suggestedReply: "Risposta Suggerita",
     certainty: "Certeza",
     copy: "Copia",
-    copied: "Copiato",
+    copied: "Copiado",
     panicBtn: "Aiuto, sono sopraffatto",
-    panicTitle: "Respira Profondo. Va tutto bene.",
+    panicTitle: "Respira Profundo. Va tutto bene.",
     panicDesc: "Se ti senti sopraffatto, va bene mettere in pausa la conversazione. Usa questo script per guadagnare tempo.",
     panicScript: "Ho ricevuto il tuo messaggio e voglio dargli l'attenzione che merita. Ho bisogno di un po' di tempo per elaborarlo, ma ti risponderò il prima possibile. Grazie per la pazienza.",
     voiceAccent: "Accento / Origine",
@@ -433,6 +454,10 @@ export const translations: Record<Language, any> = {
     viewMemories: "Ricordi",
     memorySaved: "Memoria salvata.",
     delete: "Elimina",
+
+    // Concern
+    concernTitle: "Necessita di Gentilezza",
+    careAdviceTitle: "Approccio Consigliato",
 
     // Crisis
     crisisTitle: "Modalità di Supporto Crisi",
@@ -474,13 +499,14 @@ export const translations: Record<Language, any> = {
     footerTerms: "Termos de Serviço",
     footerPrivacy: "Política de Privacidade",
     footerRefund: "Política de Reembolso",
+    footerDisclaimer: "Isenção de Responsabilidade",
     footerRights: "Copyright © 2025 Neuro-Sense, Inc. Todos os direitos reservados.",
 
     // Existing
     subtitle: "Decodificador de Contexto Mágico",
     sourceTitle: "A Fonte",
     sourceDesc: "Cole o texto confuso ou envie uma captura de tela. Vamos entender isso juntos.",
-    extensionTitle: "Obter a extensão do Chrome",
+    extensionTitle: "Obter a extensão de Chrome",
     extensionDesc: "Decodifique WhatsApp e Messenger automaticamente.",
     clarityTitle: "A Clareza",
     unlocking: "Desbloqueando significado...",
@@ -520,6 +546,10 @@ export const translations: Record<Language, any> = {
     viewMemories: "Memórias",
     memorySaved: "Memória salva.",
     delete: "Excluir",
+
+    // Concern
+    concernTitle: "Preocupação Leve Necessária",
+    careAdviceTitle: "Abordagem Recomendada",
 
     // Crisis
     crisisTitle: "Modo de Apoio à Crise",
@@ -561,6 +591,7 @@ export const translations: Record<Language, any> = {
     footerTerms: "利用規約",
     footerPrivacy: "プライバシーポリシー",
     footerRefund: "返金ポリシー",
+    footerDisclaimer: "免責事項",
     footerRights: "Copyright © 2025 Neuro-Sense, Inc. All rights reserved.",
 
     // Existing
@@ -607,6 +638,10 @@ export const translations: Record<Language, any> = {
     viewMemories: "思い出",
     memorySaved: "メモリが保存されました。",
     delete: "削除",
+
+    // Concern
+    concernTitle: "穏やかな配慮が必要です",
+    careAdviceTitle: "推奨されるアプローチ",
 
     // Crisis
     crisisTitle: "危機支援モード",

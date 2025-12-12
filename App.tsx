@@ -78,6 +78,7 @@ const Footer = ({ theme, t }: { theme: 'light' | 'dark', t: any }) => {
                    <li><a href="#" className="hover:text-indigo-500 transition-colors">{t.footerTerms}</a></li>
                    <li><a href="#" className="hover:text-indigo-500 transition-colors">{t.footerPrivacy}</a></li>
                    <li><a href="#" className="hover:text-indigo-500 transition-colors">{t.footerRefund}</a></li>
+                   <li><a href="#" className="hover:text-indigo-500 transition-colors">{t.footerDisclaimer}</a></li>
                  </ul>
                </div>
             </div>

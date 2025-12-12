@@ -3,6 +3,7 @@ export enum RiskLevel {
   SAFE = "Safe",
   CAUTION = "Caution",
   CONFLICT = "Conflict",
+  CONCERN = "Concern",
   CRISIS = "Crisis"
 }
 

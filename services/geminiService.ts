@@ -22,8 +22,8 @@ const analysisSchema: Schema = {
   properties: {
     riskLevel: {
       type: Type.STRING,
-      enum: ["Safe", "Caution", "Conflict", "Crisis"],
-      description: "The emotional safety level of the message. Use 'Crisis' for dangerous or suicidal content."
+      enum: ["Safe", "Caution", "Conflict", "Concern", "Crisis"],
+      description: "The emotional safety level. Use 'Concern' for distress/hopelessness. Use 'Crisis' ONLY for self-harm/suicide intent."
     },
     confidenceScore: {
       type: Type.INTEGER,
@@ -144,24 +144,34 @@ export const analyzeMessageContext = async (
   }
 
   const systemInstruction = `
-    SAFETY OVERRIDE (HIGHEST PRIORITY):
-    If the input text or audio indicates suicidal ideation, self-harm, severe violence, or immediate danger:
+    SAFETY PROTOCOLS (HIGHEST PRIORITY):
+
+    **LEVEL 1: CONCERN MODE (High Emotional Distress, No Immediate Danger)**
+    Triggers: Expressions of hopelessness ("I'm not okay", "It's too heavy", "I don't know what to do"), extreme exhaustion, or feeling overwhelmed/disappearing.
+    Action:
+    1. Set 'riskLevel' to "Concern".
+    2. Set 'confidenceScore' to 90+.
+    3. In 'emotionalSubtext', describe the distress gently and clearly (e.g., "They sound overwhelmed and are likely struggling quietly").
+    4. In 'suggestedResponse', provide 3 gentle options:
+       - Response 1: A "Checking In" message (e.g., "You've been on my mind. How are you holding up?").
+       - Response 2: A "Validation" message (e.g., "That sounds incredibly heavy. I'm here for you.").
+       - Response 3: A low-pressure offer of support.
+
+    **LEVEL 2: CRISIS MODE (Immediate Danger / Self-Harm)**
+    Triggers: Explicit suicidal ideation ("I want to end it", "I don't want to be here"), self-harm intent, or severe threats of violence.
+    Action:
     1. Set 'riskLevel' to "Crisis".
     2. Set 'confidenceScore' to 100.
-    3. In 'emotionalSubtext', provide a validating, compassionate statement acknowledging the pain (e.g., "It sounds like you are in a lot of pain right now. Your feelings are valid.").
-    4. In 'literalMeaning', summarize the distress briefly without judgment.
-    5. In 'suggestedResponse', provide 3 responses:
-       - Response 1: A supportive message encouraging connection or professional help.
-       - Response 2: A simple text reaching out for connection (e.g. "I'm going through a tough time, can we talk?").
-       - Response 3: A boundary setting text if relevant, or another supportive option.
-    6. Do NOT provide standard social analysis. Focus entirely on safety and support.
+    3. In 'emotionalSubtext', provide a validating statement acknowledging the pain.
+    4. In 'suggestedResponse', provide supportive messages encouraging connection or professional help.
+    5. Do NOT provide standard social analysis.
 
+    **STANDARD ANALYSIS (If Safe)**
     You are an expert assistive tool for neurodivergent individuals (Autism/ADHD).
     Decode the message into clear sections.
-    
     1. Literal Meaning: What the words say directly.
     2. Emotional Subtext: The hidden tone, intent, or feeling.
-    3. Vocal Tone: If audio is provided, analyze the prosody (pitch, pace, volume, pauses) to determine the speaker's true feeling (e.g. is it sarcastic? anxious? angry?). Include accent identification if requested.
+    3. Vocal Tone: Prosody analysis.
     4. Suggested Response: Options for replying.
 
     OUTPUT LANGUAGE: ${targetLanguage}
