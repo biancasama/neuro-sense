@@ -10,10 +10,18 @@ import { Moon, Sun, ArrowRight, Youtube, Instagram, Twitter, MessageCircle, Musi
 import { PhoneMockupIllustration } from './components/Illustrations';
 
 // Footer Component tailored for the App Card
-const Footer = ({ theme, t }: { theme: 'light' | 'dark', t: any }) => {
+const Footer = ({ theme, t, sensorySafe }: { theme: 'light' | 'dark', t: any, sensorySafe: boolean }) => {
   const textPrimary = theme === 'dark' ? 'text-white' : 'text-stone-900';
   const textSecondary = theme === 'dark' ? 'text-stone-400' : 'text-stone-500';
   const borderCol = theme === 'dark' ? 'border-white/10' : 'border-stone-200';
+
+  if (sensorySafe) {
+    return (
+       <footer className={`w-full py-8 mt-12 border-t ${borderCol} text-center text-xs ${textSecondary}`}>
+          <p>{t.footerRights}</p>
+       </footer>
+    );
+  }
 
   return (
     <footer className={`w-full py-12 mt-16 border-t ${borderCol} transition-colors duration-500`}>
@@ -101,6 +109,12 @@ const App: React.FC = () => {
   // Theme State
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   
+  // Accessibility State
+  const [accessibility, setAccessibility] = useState({
+    dyslexic: false,
+    sensorySafe: false
+  });
+
   // Navigation State: 'home' (includes hero + input) | 'results'
   const [view, setView] = useState<'home' | 'results'>('home');
   
@@ -200,17 +214,37 @@ const App: React.FC = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
+  // Determine Background Colors based on Sensory Mode
+  let bgClass = '';
+  let textClass = '';
+  
+  if (accessibility.sensorySafe) {
+    // Sensory Safe: Low contrast, calm beige or soft dark grey
+    bgClass = theme === 'dark' ? 'bg-sensory-dark text-stone-300' : 'bg-sensory-light text-stone-800';
+    textClass = theme === 'dark' ? 'text-stone-300' : 'text-stone-800';
+  } else {
+    // Normal Mode
+    bgClass = theme === 'dark' ? 'bg-[#121212] text-[#E0E0E0]' : 'bg-[#F2F4F8] text-[#1F2937]';
+    textClass = theme === 'dark' ? 'text-white' : 'text-stone-900';
+  }
+
+  // Dyslexic Font Class
+  const fontClass = accessibility.dyslexic ? 'font-dyslexic leading-loose' : 'font-sans';
+
   // Responsive Container Classes
   const containerClass = `
-    min-h-screen transition-colors duration-500 ease-in-out font-sans flex flex-col items-center justify-center 
+    min-h-screen transition-colors duration-500 ease-in-out flex flex-col items-center justify-center 
     p-4 md:p-8 lg:p-12
-    ${theme === 'dark' ? 'bg-[#121212] text-[#E0E0E0]' : 'bg-[#F2F4F8] text-[#1F2937]'}
+    ${bgClass} ${fontClass}
   `;
 
   // Responsive Card Classes
   const cardClass = `
-    w-full relative flex flex-col shadow-2xl transition-all duration-500 overflow-hidden
-    ${theme === 'dark' ? 'bg-[#1E1E1E] shadow-black/40' : 'bg-white shadow-stone-200'}
+    w-full relative flex flex-col transition-all duration-500 overflow-hidden
+    ${accessibility.sensorySafe 
+       ? (theme === 'dark' ? 'bg-[#1E1E1E] border border-stone-700' : 'bg-[#EAE5D9] border border-[#D6D0C0]') 
+       : (theme === 'dark' ? 'bg-[#1E1E1E] shadow-2xl shadow-black/40' : 'bg-white shadow-2xl shadow-stone-200')
+    }
     
     /* Mobile Defaults */
     max-w-md rounded-[2.5rem] h-[85vh]
@@ -241,6 +275,8 @@ const App: React.FC = () => {
             theme={theme}
             language={language}
             onLanguageChange={setLanguage}
+            accessibility={accessibility}
+            onToggleAccessibility={(key) => setAccessibility(prev => ({ ...prev, [key]: !prev[key] }))}
           />
         </div>
 
@@ -252,15 +288,16 @@ const App: React.FC = () => {
             <div className="flex flex-col min-h-full pt-4 md:pt-12">
                
                {/* Main Hero Content */}
-               <div className="flex flex-col md:flex-row items-center justify-between gap-12 mb-24 animate-in fade-in slide-in-from-bottom-4 duration-500 pt-8 max-w-5xl mx-auto w-full">
+               <div className={`flex flex-col md:flex-row items-center justify-between gap-12 mb-24 duration-500 pt-8 max-w-5xl mx-auto w-full ${!accessibility.sensorySafe && 'animate-in fade-in slide-in-from-bottom-4'}`}>
                   
                   {/* Hero Text Side */}
                   <div className="flex flex-col items-center md:items-start text-center md:text-left flex-1">
                     <div className="mb-6 md:mb-8">
-                        <div className="md:hidden mb-6 flex justify-center"><BrainLogo size={80} /></div> {/* Mobile Logo */}
-                        <div className="hidden md:flex mb-6"><BrainLogo size={100} /></div> {/* Desktop Logo */}
+                        {/* Logo logic remains mostly same, just size adjusted */}
+                        <div className="md:hidden mb-6 flex justify-center"><BrainLogo size={80} /></div> 
+                        <div className="hidden md:flex mb-6"><BrainLogo size={100} /></div> 
                         
-                        <h1 className={`text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight leading-tight ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>
+                        <h1 className={`text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight leading-tight ${textClass}`}>
                           Neuro-Sense
                         </h1>
                         <p className={`text-lg md:text-2xl lg:text-3xl font-medium leading-relaxed max-w-lg ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>
@@ -274,27 +311,37 @@ const App: React.FC = () => {
                     
                     <button 
                       onClick={scrollToDecode}
-                      className="w-full md:w-auto md:px-12 py-4 md:py-5 rounded-2xl bg-[#6366F1] hover:bg-[#5558DD] text-white font-bold text-lg md:text-xl shadow-lg shadow-indigo-500/30 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3"
+                      className={`
+                        w-full md:w-auto md:px-12 py-4 md:py-5 rounded-2xl font-bold text-lg md:text-xl transition-all flex items-center justify-center gap-3
+                        ${accessibility.sensorySafe 
+                          ? 'bg-stone-600 text-white border border-stone-500 hover:bg-stone-700' 
+                          : 'bg-[#6366F1] hover:bg-[#5558DD] text-white shadow-lg shadow-indigo-500/30 transform hover:scale-[1.02]'
+                        }
+                      `}
                     >
                       {t.getStarted} <ArrowRight size={20} />
                     </button>
                   </div>
 
-                  {/* Hero Image Side */}
-                  <div className="flex-1 flex justify-center w-full max-w-sm md:max-w-md lg:max-w-lg transform md:scale-110 lg:scale-125">
-                      <PhoneMockupIllustration className="w-full h-auto drop-shadow-2xl" />
-                  </div>
+                  {/* Hero Image Side - HIDDEN IN SENSORY MODE */}
+                  {!accessibility.sensorySafe && (
+                    <div className="flex-1 flex justify-center w-full max-w-sm md:max-w-md lg:max-w-lg transform md:scale-110 lg:scale-125">
+                        <PhoneMockupIllustration className="w-full h-auto drop-shadow-2xl" />
+                    </div>
+                  )}
                </div>
 
-               {/* Separator / Scroll Indicator */}
-               <div className="flex justify-center mb-16 opacity-20 hidden md:flex">
-                 <div className="w-1 h-12 bg-current rounded-full animate-bounce"></div>
-               </div>
+               {/* Separator / Scroll Indicator - Hidden in Sensory */}
+               {!accessibility.sensorySafe && (
+                 <div className="flex justify-center mb-16 opacity-20 hidden md:flex">
+                   <div className="w-1 h-12 bg-current rounded-full animate-bounce"></div>
+                 </div>
+               )}
 
                {/* INPUT SECTION */}
-               <div id="decode-section" ref={decodeSectionRef} className="animate-in fade-in slide-in-from-bottom-8 duration-700 mb-12 scroll-mt-32 max-w-4xl mx-auto w-full">
+               <div id="decode-section" ref={decodeSectionRef} className={`mb-12 scroll-mt-32 max-w-4xl mx-auto w-full ${!accessibility.sensorySafe && 'animate-in fade-in slide-in-from-bottom-8 duration-700'}`}>
                   <div className="mb-8 md:mb-12 text-center md:text-left">
-                    <h2 className={`text-3xl md:text-5xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>{t.decodeTitle}</h2>
+                    <h2 className={`text-3xl md:text-5xl font-bold mb-4 ${textClass}`}>{t.decodeTitle}</h2>
                     <p className={`text-lg md:text-xl ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>
                       {t.decodeDesc}
                     </p>
@@ -305,11 +352,12 @@ const App: React.FC = () => {
                     isAnalyzing={isAnalyzing} 
                     t={t} 
                     theme={theme}
+                    sensorySafe={accessibility.sensorySafe}
                   />
                </div>
 
                {/* Footer */}
-               <Footer theme={theme} t={t} />
+               <Footer theme={theme} t={t} sensorySafe={accessibility.sensorySafe} />
             </div>
           )}
 
@@ -318,9 +366,9 @@ const App: React.FC = () => {
             <div className="animate-in fade-in slide-in-from-right-8 duration-500 h-full flex flex-col pt-8 max-w-5xl mx-auto w-full">
                {isAnalyzing ? (
                  <div className="flex-grow flex flex-col items-center justify-center text-center space-y-8 min-h-[500px]">
-                    <div className="w-24 h-24 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+                    <div className={`w-24 h-24 border-4 rounded-full ${accessibility.sensorySafe ? 'border-stone-400 border-t-stone-600' : 'border-indigo-500/30 border-t-indigo-500 animate-spin'}`}></div>
                     <div>
-                      <h3 className={`text-2xl md:text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>{t.analyzingTitle}</h3>
+                      <h3 className={`text-2xl md:text-3xl font-bold ${textClass}`}>{t.analyzingTitle}</h3>
                       <p className={`mt-3 text-lg ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>{t.analyzingDesc}</p>
                     </div>
                  </div>
@@ -331,6 +379,7 @@ const App: React.FC = () => {
                    onSave={() => {}} 
                    t={t} 
                    theme={theme}
+                   sensorySafe={accessibility.sensorySafe}
                  />
                )}
             </div>

@@ -9,12 +9,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic.min.css" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
+              dyslexic: ['OpenDyslexic', 'Comic Sans MS', 'sans-serif'],
             },
             colors: {
               charcoal: {
@@ -29,6 +31,11 @@
               text: {
                 primary: '#F2F2F2',
                 secondary: '#C7C7D1',
+              },
+              // Sensory Safe Palette
+              sensory: {
+                light: '#F0EBE0', // Warm Beige
+                dark: '#262626',  // Soft Charcoal
               }
             },
             boxShadow: {

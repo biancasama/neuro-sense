@@ -8,6 +8,7 @@ interface InputSectionProps {
   isAnalyzing: boolean;
   t: any;
   theme: 'light' | 'dark';
+  sensorySafe?: boolean;
 }
 
 // Add support for Web Speech API types
@@ -74,10 +75,36 @@ const DeepContextToggle: React.FC<{
   isEnabled: boolean;
   onToggle: () => void;
   theme: 'light' | 'dark';
-}> = ({ isEnabled, onToggle, theme }) => {
+  sensorySafe?: boolean;
+}> = ({ isEnabled, onToggle, theme, sensorySafe }) => {
   const textPrimary = theme === 'dark' ? 'text-white' : 'text-stone-800';
   const textSecondary = theme === 'dark' ? 'text-stone-400' : 'text-stone-500';
 
+  // SENSORY SAFE UI: Simple checkbox style
+  if (sensorySafe) {
+     return (
+        <div 
+          onClick={onToggle}
+          className={`
+            flex items-center gap-4 p-4 rounded-xl cursor-pointer mb-6 border-2
+            ${isEnabled 
+               ? 'bg-stone-200 border-stone-600' 
+               : 'bg-transparent border-stone-300'
+            }
+          `}
+        >
+           <div className={`w-6 h-6 border-2 flex items-center justify-center ${isEnabled ? 'bg-stone-800 border-stone-800' : 'border-stone-500'}`}>
+              {isEnabled && <span className="text-white text-sm font-bold">✓</span>}
+           </div>
+           <div>
+              <span className={`text-lg font-bold block ${textPrimary}`}>Deep Context</span>
+              <span className={`text-sm ${textSecondary}`}>Enable reasoning mode (Gemini 3 Pro)</span>
+           </div>
+        </div>
+     )
+  }
+
+  // STANDARD UI: Gradient, Pulse, etc.
   return (
     <div 
       onClick={onToggle}
@@ -144,7 +171,7 @@ const DeepContextToggle: React.FC<{
   );
 };
 
-const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, theme }) => {
+const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, theme, sensorySafe }) => {
   const [mode, setMode] = useState<'selection' | 'text' | 'image' | 'audio'>('selection');
   const [text, setText] = useState('');
   
@@ -205,13 +232,16 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
   const buttonBase = `
     w-full p-6 md:p-8 rounded-3xl flex items-center gap-6 transition-all duration-300 border text-left group h-full
     ${theme === 'dark' 
-      ? 'bg-[#2C2C2C] border-[#383838] hover:border-indigo-500/50 hover:bg-[#333]' 
-      : 'bg-white border-stone-100 shadow-sm hover:border-indigo-100 hover:shadow-md'
+      ? (sensorySafe ? 'bg-[#262626] border-stone-600' : 'bg-[#2C2C2C] border-[#383838] hover:border-indigo-500/50 hover:bg-[#333]')
+      : (sensorySafe ? 'bg-[#EAE5D9] border-stone-400' : 'bg-white border-stone-100 shadow-sm hover:border-indigo-100 hover:shadow-md')
     }
   `;
   const iconBox = `
     w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-colors flex-shrink-0
-    ${theme === 'dark' ? 'bg-[#383838] text-indigo-400 group-hover:bg-indigo-500/20' : 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100'}
+    ${theme === 'dark' 
+       ? (sensorySafe ? 'bg-stone-700 text-stone-300' : 'bg-[#383838] text-indigo-400 group-hover:bg-indigo-500/20')
+       : (sensorySafe ? 'bg-stone-300 text-stone-700' : 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100')
+    }
   `;
   const textPrimary = theme === 'dark' ? 'text-white' : 'text-stone-800';
   const textSecondary = theme === 'dark' ? 'text-stone-400' : 'text-stone-500';
@@ -362,13 +392,14 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
 
   if (mode === 'selection') {
     return (
-      <div className="animate-in fade-in slide-in-from-bottom-4">
+      <div className={!sensorySafe ? "animate-in fade-in slide-in-from-bottom-4" : ""}>
         <p className={`mb-8 ${textSecondary} md:text-lg`}>{t.letMakeSense}</p>
         
         <DeepContextToggle 
           isEnabled={useDeepContext} 
           onToggle={() => setUseDeepContext(!useDeepContext)} 
           theme={theme} 
+          sensorySafe={sensorySafe}
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -409,20 +440,32 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
 
         <div 
           onClick={() => setPlainMode(!plainMode)}
-          className={`mt-8 md:mt-10 flex flex-col p-5 rounded-2xl cursor-pointer transition-all ${theme === 'dark' ? 'bg-[#2C2C2C] hover:bg-[#353535]' : 'bg-stone-50 hover:bg-stone-100'} max-w-lg border border-transparent hover:border-indigo-100`}
+          className={`
+            mt-8 md:mt-10 flex flex-col p-5 rounded-2xl cursor-pointer transition-all max-w-lg border 
+            ${theme === 'dark' 
+              ? (sensorySafe ? 'bg-[#262626] border-stone-600' : 'bg-[#2C2C2C] border-transparent hover:bg-[#353535] hover:border-indigo-100')
+              : (sensorySafe ? 'bg-[#EAE5D9] border-stone-400' : 'bg-stone-50 border-transparent hover:bg-stone-100 hover:border-indigo-100')
+            }
+          `}
         >
            <div className="flex items-center justify-between w-full">
                <span className={`font-medium text-base md:text-lg ${textPrimary}`}>{t.plainMode}</span>
-               <div className={`w-14 h-7 rounded-full relative transition-colors duration-300 ${plainMode ? 'bg-indigo-500/20' : (theme === 'dark' ? 'bg-stone-700' : 'bg-stone-200')}`}>
-                  <div className={`absolute top-1 w-5 h-5 rounded-full shadow-sm transition-all duration-300 ${plainMode ? 'bg-indigo-500 right-1' : 'bg-stone-400 left-1'}`}></div>
-               </div>
+               {sensorySafe ? (
+                 <div className={`w-6 h-6 border-2 flex items-center justify-center ${plainMode ? 'bg-stone-800 border-stone-800' : 'border-stone-500'}`}>
+                    {plainMode && <span className="text-white text-sm font-bold">✓</span>}
+                 </div>
+               ) : (
+                 <div className={`w-14 h-7 rounded-full relative transition-colors duration-300 ${plainMode ? 'bg-indigo-500/20' : (theme === 'dark' ? 'bg-stone-700' : 'bg-stone-200')}`}>
+                    <div className={`absolute top-1 w-5 h-5 rounded-full shadow-sm transition-all duration-300 ${plainMode ? 'bg-indigo-500 right-1' : 'bg-stone-400 left-1'}`}></div>
+                 </div>
+               )}
            </div>
            
            <div className={`grid transition-all duration-300 ease-in-out ${plainMode ? 'grid-rows-[1fr] opacity-100 mt-4' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
               <div className="overflow-hidden">
                  <div className={`p-4 rounded-xl border-2 border-dashed ${theme === 'dark' ? 'border-stone-700 bg-black/20' : 'border-stone-200 bg-white/50'}`}>
                     <div className="flex items-center gap-3 mb-2">
-                       <div className={`w-2 h-2 rounded-full ${theme === 'dark' ? 'bg-indigo-400' : 'bg-indigo-500'} animate-pulse`}></div>
+                       <div className={`w-2 h-2 rounded-full ${theme === 'dark' ? 'bg-indigo-400' : 'bg-indigo-500'} ${!sensorySafe && 'animate-pulse'}`}></div>
                        <span className={`text-xs font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-stone-500' : 'text-stone-400'}`}>{t.previewLabel}</span>
                     </div>
                     <p className={`text-sm ${textSecondary} leading-relaxed`}>
@@ -439,14 +482,17 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
   // Text Entry Mode (with Mic)
   if (mode === 'text') {
     return (
-      <div className="h-full flex flex-col animate-in fade-in slide-in-from-right-4 min-h-[500px]">
+      <div className={`h-full flex flex-col min-h-[500px] ${!sensorySafe && 'animate-in fade-in slide-in-from-right-4'}`}>
         
         {/* Main Text Input Area */}
         <div className={`
           relative flex-grow rounded-3xl mb-6 overflow-hidden border transition-all duration-300
           ${isRecording 
-            ? 'border-red-400 bg-red-50/10 shadow-[0_0_30px_rgba(239,68,68,0.1)]' 
-            : (theme === 'dark' ? 'bg-[#2C2C2C] border-transparent focus-within:border-indigo-500/50' : 'bg-stone-50 border-transparent focus-within:border-indigo-200')
+            ? 'border-red-400 bg-red-50/10' 
+            : (theme === 'dark' 
+                ? (sensorySafe ? 'bg-[#262626] border-stone-500' : 'bg-[#2C2C2C] border-transparent focus-within:border-indigo-500/50')
+                : (sensorySafe ? 'bg-[#EAE5D9] border-stone-400' : 'bg-stone-50 border-transparent focus-within:border-indigo-200')
+              )
           }
         `}>
            
@@ -462,7 +508,6 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
             value={text}
             onChange={(e) => setText(e.target.value)}
             onFocus={() => {
-              // Seamless switch: if user taps to type while recording, stop recording automatically
               if (isRecording) stopRecording();
             }}
           />
@@ -472,25 +517,28 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
                {isProcessingAudio ? (
                  <div className="flex flex-col items-center gap-2">
-                   <Loader2 size={32} className={`animate-spin ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-500'}`} />
-                   <p className={`text-lg font-bold ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-600'}`}>Processing Audio...</p>
+                   <Loader2 size={32} className={`${!sensorySafe && 'animate-spin'} ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-500'}`} />
+                   <p className={`text-lg font-bold ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-600'}`}>Processing...</p>
                  </div>
                ) : (
                  <>
-                  <div className="flex items-center gap-1.5 h-16 mb-4 opacity-75">
-                      {[1, 2, 3, 2, 4, 2, 1, 3, 2].map((h, i) => (
-                        <div 
-                          key={i} 
-                          className={`w-2.5 rounded-full animate-bounce ${theme === 'dark' ? 'bg-red-400' : 'bg-red-500'}`}
-                          style={{ 
-                            height: `${h * 10}px`, 
-                            animationDuration: '0.8s',
-                            animationDelay: `${i * 0.1}s` 
-                          }}
-                        ></div>
-                      ))}
-                  </div>
-                  <p className={`text-2xl font-bold animate-pulse ${theme === 'dark' ? 'text-red-400' : 'text-red-500'}`}>
+                  {/* Hide animation in sensory safe */}
+                  {!sensorySafe && (
+                    <div className="flex items-center gap-1.5 h-16 mb-4 opacity-75">
+                        {[1, 2, 3, 2, 4, 2, 1, 3, 2].map((h, i) => (
+                          <div 
+                            key={i} 
+                            className={`w-2.5 rounded-full animate-bounce ${theme === 'dark' ? 'bg-red-400' : 'bg-red-500'}`}
+                            style={{ 
+                              height: `${h * 10}px`, 
+                              animationDuration: '0.8s',
+                              animationDelay: `${i * 0.1}s` 
+                            }}
+                          ></div>
+                        ))}
+                    </div>
+                  )}
+                  <p className={`text-2xl font-bold ${!sensorySafe && 'animate-pulse'} ${theme === 'dark' ? 'text-red-400' : 'text-red-500'}`}>
                     {t.voicePlaceholder || "Listening..."}
                   </p>
                   <p className={`mt-2 text-sm font-medium opacity-70 ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>
@@ -504,14 +552,14 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
           {/* Controls Container */}
           <div className="absolute bottom-6 right-6 flex flex-col items-end gap-4 z-20">
              
-             {/* Accent Selector - Enhanced Visibility */}
+             {/* Accent Selector */}
              <div className="flex flex-col items-end gap-1">
                <span className={`text-[10px] uppercase font-bold tracking-wider ${theme === 'dark' ? 'text-stone-500' : 'text-stone-400'} mr-2`}>
                  Voice Accent
                </span>
                <div className={`
                   flex items-center gap-2 pl-3 pr-2 py-2 rounded-xl border transition-all duration-300 shadow-lg backdrop-blur-md cursor-pointer hover:scale-105
-                  ${theme === 'dark' ? 'bg-[#1a1a1a]/95 border-[#444] hover:border-indigo-500/50' : 'bg-white/95 border-stone-200 hover:border-indigo-200'}
+                  ${theme === 'dark' ? 'bg-[#1a1a1a]/95 border-[#444]' : 'bg-white/95 border-stone-200'}
                `}>
                   <Globe size={16} className={theme === 'dark' ? 'text-indigo-400' : 'text-indigo-500'} />
                   <div className="relative">
@@ -534,7 +582,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
              {isRecording ? (
                 <button 
                   onClick={stopRecording}
-                  className="group flex items-center gap-3 pl-5 pr-2 py-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-all shadow-xl shadow-red-500/30 animate-pulse"
+                  className={`group flex items-center gap-3 pl-5 pr-2 py-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-all shadow-xl shadow-red-500/30 ${!sensorySafe && 'animate-pulse'}`}
                 >
                   <span className="font-bold text-sm tracking-wide">STOP</span>
                   <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
@@ -561,9 +609,9 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
 
            {/* Audio Attached Indicator */}
            {recordedAudio && !isRecording && !isProcessingAudio && (
-              <div className="absolute bottom-6 left-6 animate-in slide-in-from-bottom-2 fade-in z-20">
+              <div className={`absolute bottom-6 left-6 z-20 ${!sensorySafe && 'animate-in slide-in-from-bottom-2 fade-in'}`}>
                  <div className="px-4 py-2.5 rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 text-sm font-bold flex items-center gap-3">
-                   <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+                   <div className={`w-2 h-2 rounded-full bg-white ${!sensorySafe && 'animate-pulse'}`}></div>
                    Voice Note Attached 
                    <button 
                      onClick={() => setRecordedAudio(null)} 
@@ -580,6 +628,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
           isEnabled={useDeepContext} 
           onToggle={() => setUseDeepContext(!useDeepContext)} 
           theme={theme} 
+          sensorySafe={sensorySafe}
         />
 
         <div className="flex gap-4 mt-auto">
@@ -592,7 +641,13 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
           <button
             onClick={handleSubmit}
             disabled={(!text.trim() && !recordedAudio)}
-            className="flex-grow py-4 rounded-2xl bg-[#6366F1] hover:bg-[#5558DD] text-white font-bold text-lg shadow-xl shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.01]"
+            className={`
+              flex-grow py-4 rounded-2xl font-bold text-lg shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all transform 
+              ${sensorySafe 
+                ? 'bg-stone-700 text-white hover:bg-stone-800'
+                : 'bg-[#6366F1] hover:bg-[#5558DD] text-white shadow-indigo-500/20 hover:scale-[1.01]'
+              }
+            `}
           >
             {recordedAudio ? t.analyzeAudioText : t.analyzeText}
           </button>
@@ -604,7 +659,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
   // Image Preview Mode
   if (mode === 'image' && filePreview) {
     return (
-      <div className="h-full flex flex-col animate-in fade-in slide-in-from-right-4 min-h-[400px]">
+      <div className={`h-full flex flex-col min-h-[400px] ${!sensorySafe && 'animate-in fade-in slide-in-from-right-4'}`}>
         <div className={`relative flex-grow rounded-3xl overflow-hidden mb-6 border ${theme === 'dark' ? 'border-[#383838] bg-[#2C2C2C]' : 'border-stone-200 bg-stone-50'}`}>
           <img src={filePreview} alt="Preview" className="w-full h-full object-contain p-4" />
           <button 
@@ -619,11 +674,18 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
           isEnabled={useDeepContext} 
           onToggle={() => setUseDeepContext(!useDeepContext)} 
           theme={theme} 
+          sensorySafe={sensorySafe}
         />
 
         <button
           onClick={handleSubmit}
-          className="w-full py-5 rounded-2xl bg-[#6366F1] hover:bg-[#5558DD] text-white font-bold text-xl shadow-xl transition-all"
+          className={`
+            w-full py-5 rounded-2xl font-bold text-xl shadow-xl transition-all
+            ${sensorySafe 
+              ? 'bg-stone-700 text-white hover:bg-stone-800'
+              : 'bg-[#6366F1] hover:bg-[#5558DD] text-white'
+            }
+          `}
         >
           {t.analyzeScreenshot}
         </button>
@@ -634,7 +696,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
   // Audio File Preview Mode
   if (mode === 'audio' && selectedFile) {
      return (
-      <div className="h-full flex flex-col animate-in fade-in slide-in-from-right-4 justify-between min-h-[400px]">
+      <div className={`h-full flex flex-col justify-between min-h-[400px] ${!sensorySafe && 'animate-in fade-in slide-in-from-right-4'}`}>
          <div className={`flex-grow flex flex-col items-center justify-center rounded-3xl mb-6 border-2 border-dashed ${theme === 'dark' ? 'bg-[#2C2C2C] border-[#383838]' : 'bg-stone-50 border-stone-200'}`}>
             <div className={`p-8 rounded-full mb-6 ${theme === 'dark' ? 'bg-[#383838] text-indigo-400' : 'bg-indigo-50 text-indigo-600'}`}>
               <Mic size={64} />
@@ -659,6 +721,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
           isEnabled={useDeepContext} 
           onToggle={() => setUseDeepContext(!useDeepContext)} 
           theme={theme} 
+          sensorySafe={sensorySafe}
         />
 
          <div className="flex gap-4">
@@ -670,7 +733,13 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
           </button>
           <button
             onClick={handleSubmit}
-            className="flex-grow py-5 rounded-2xl bg-[#6366F1] hover:bg-[#5558DD] text-white font-bold text-xl shadow-xl transition-all"
+            className={`
+              flex-grow py-5 rounded-2xl font-bold text-xl shadow-xl transition-all
+              ${sensorySafe 
+                ? 'bg-stone-700 text-white hover:bg-stone-800'
+                : 'bg-[#6366F1] hover:bg-[#5558DD] text-white'
+              }
+            `}
           >
             {t.analyzeAudio}
           </button>

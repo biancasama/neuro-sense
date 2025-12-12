@@ -10,19 +10,20 @@ interface Props {
   t: any;
   theme: 'light' | 'dark';
   compact?: boolean;
+  sensorySafe?: boolean;
 }
 
-const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compact, t }) => {
+const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compact, t, sensorySafe }) => {
   if (!result) return null;
 
   // SAFETY LEVEL 2: CRISIS MODE (Immediate Danger)
   if (result.riskLevel === RiskLevel.CRISIS) {
     return (
-        <div className="animate-in fade-in zoom-in-95 duration-500 max-w-4xl mx-auto w-full">
+        <div className={`${!sensorySafe && 'animate-in fade-in zoom-in-95 duration-500'} max-w-4xl mx-auto w-full`}>
             {/* Crisis Header */}
             <div className={`p-8 rounded-3xl border-2 mb-8 shadow-2xl ${theme === 'dark' ? 'bg-red-950/30 border-red-500/50' : 'bg-red-50 border-red-200'}`}>
                 <div className="flex items-center gap-6 mb-6">
-                    <div className="p-4 bg-red-500 text-white rounded-full animate-pulse shadow-lg shadow-red-500/40">
+                    <div className={`p-4 bg-red-500 text-white rounded-full ${!sensorySafe && 'animate-pulse shadow-lg shadow-red-500/40'}`}>
                         <HeartHandshake size={32} />
                     </div>
                     <div>
@@ -63,7 +64,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compa
 
                 {/* Nearby Places Section (Grounding from Maps) */}
                 {nearbyPlaces && (
-                    <div className="mb-8 animate-in slide-in-from-bottom-2 fade-in">
+                    <div className={`mb-8 ${!sensorySafe && 'animate-in slide-in-from-bottom-2 fade-in'}`}>
                        <h3 className={`text-sm font-bold uppercase tracking-wider mb-4 opacity-80 ${theme === 'dark' ? 'text-red-200' : 'text-red-800'}`}>Nearby Safe Places</h3>
                        <div className={`p-5 rounded-2xl ${theme === 'dark' ? 'bg-red-900/20' : 'bg-white'} border border-red-500/20 shadow-sm`}>
                            <div className="flex items-start gap-4">
@@ -114,7 +115,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compa
                  </h3>
                  <div className="space-y-4">
                     {result.suggestedResponse.map((reply, idx) => (
-                        <ReplyCard key={idx} text={reply} label="Supportive" theme={theme} />
+                        <ReplyCard key={idx} text={reply} label="Supportive" theme={theme} sensorySafe={sensorySafe} />
                     ))}
                  </div>
              </div>
@@ -125,7 +126,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compa
   // SAFETY LEVEL 1: CONCERN MODE (Distress / Hopelessness)
   if (result.riskLevel === RiskLevel.CONCERN) {
      return (
-        <ConcernModeDashboard result={result} nearbyPlaces={nearbyPlaces} theme={theme} t={t} />
+        <ConcernModeDashboard result={result} nearbyPlaces={nearbyPlaces} theme={theme} t={t} sensorySafe={sensorySafe} />
      )
   }
 
@@ -136,7 +137,9 @@ const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compa
 
   const textPrimary = theme === 'dark' ? 'text-white' : 'text-stone-900';
   const textSecondary = theme === 'dark' ? 'text-stone-400' : 'text-stone-500';
-  const cardBg = theme === 'dark' ? 'bg-[#2C2C2C]' : 'bg-[#F9FAFB]';
+  const cardBg = theme === 'dark' 
+     ? (sensorySafe ? 'bg-[#262626]' : 'bg-[#2C2C2C]') 
+     : (sensorySafe ? 'bg-[#EAE5D9]' : 'bg-[#F9FAFB]');
   const borderCol = theme === 'dark' ? 'border-[#383838]' : 'border-stone-100';
 
   // Check if vocal tone is meaningful (not just text fallback)
@@ -201,7 +204,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compa
         
         {/* VIBE CHECK (Risk Assessment) */}
         <div className={`mb-8 p-6 rounded-3xl border flex items-center gap-6 ${vibe.bg} ${vibe.border}`}>
-            <div className={`p-4 rounded-full bg-white/50 backdrop-blur-sm shadow-sm`}>
+            <div className={`p-4 rounded-full ${sensorySafe ? 'bg-transparent border' : 'bg-white/50 backdrop-blur-sm shadow-sm'}`}>
               {vibe.icon}
             </div>
             <div>
@@ -249,6 +252,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compa
             label="Literal Meaning"
             confidence={`${result.confidenceScore}%`} 
             theme={theme}
+            sensorySafe={sensorySafe}
           />
           
         </div>
@@ -265,6 +269,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compa
                text={reply} 
                label={idx === 0 ? "Short, Clarity" : (idx === 1 ? "Neutral, Boundary" : "Direct, Call it out")}
                theme={theme} 
+               sensorySafe={sensorySafe}
              />
           ))}
         </div>
@@ -284,15 +289,15 @@ const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compa
            
            {/* Loading State */}
            {isLoadingMore && (
-              <div className="mt-8 flex flex-col items-center justify-center gap-2 animate-in fade-in slide-in-from-top-2">
-                 <Loader2 size={24} className="animate-spin text-indigo-500" />
+              <div className={`mt-8 flex flex-col items-center justify-center gap-2 ${!sensorySafe && 'animate-in fade-in slide-in-from-top-2'}`}>
+                 <Loader2 size={24} className={`${!sensorySafe && 'animate-spin'} text-indigo-500`} />
                  <p className="text-sm font-medium text-indigo-500">Drafting alternate options...</p>
               </div>
            )}
 
            {/* Additional Replies */}
            {moreRepliesOpen && !isLoadingMore && (
-              <div className="mt-6 space-y-6 md:grid md:grid-cols-1 md:gap-6 md:space-y-0 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className={`mt-6 space-y-6 md:grid md:grid-cols-1 md:gap-6 md:space-y-0 ${!sensorySafe && 'animate-in fade-in slide-in-from-top-4 duration-500'}`}>
                  <div className="md:col-span-1 pt-4 border-t border-dashed border-stone-200">
                    <p className={`text-xs font-bold uppercase tracking-wide mb-4 ${textSecondary}`}>Additional Options</p>
                    <div className="space-y-4">
@@ -301,18 +306,21 @@ const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compa
                        label="Neutral, Pause" 
                        theme={theme}
                        compact={true}
+                       sensorySafe={sensorySafe}
                      />
                      <ReplyCard 
                        text="Can you clarify what you mean by that?" 
                        label="Curious, Clarifying" 
                        theme={theme}
                        compact={true} 
+                       sensorySafe={sensorySafe}
                      />
                      <ReplyCard 
                        text="Thanks for letting me know." 
                        label="Brief, Acknowledgment" 
                        theme={theme}
                        compact={true} 
+                       sensorySafe={sensorySafe}
                      />
                    </div>
                  </div>
@@ -327,11 +335,11 @@ const AnalysisDashboard: React.FC<Props> = ({ result, nearbyPlaces, theme, compa
 
 // --- Sub-Components ---
 
-const ConcernModeDashboard: React.FC<{ result: AnalysisResult, nearbyPlaces?: GroundingData | null, theme: 'light' | 'dark', t: any }> = ({ result, nearbyPlaces, theme, t }) => {
+const ConcernModeDashboard: React.FC<{ result: AnalysisResult, nearbyPlaces?: GroundingData | null, theme: 'light' | 'dark', t: any, sensorySafe?: boolean }> = ({ result, nearbyPlaces, theme, t, sensorySafe }) => {
     const [showResources, setShowResources] = useState(false);
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className={`space-y-8 ${!sensorySafe && 'animate-in fade-in duration-500'}`}>
             {/* CONCERN BANNER */}
             <div className={`rounded-3xl p-8 border-2 shadow-xl ${theme === 'dark' ? 'bg-amber-950/40 border-amber-500/40' : 'bg-amber-50 border-amber-200'}`}>
                 <div className="flex flex-col md:flex-row gap-6 md:items-start">
@@ -371,7 +379,7 @@ const ConcernModeDashboard: React.FC<{ result: AnalysisResult, nearbyPlaces?: Gr
 
                 {/* Expandable Resources */}
                 {showResources && (
-                     <div className="mt-6 space-y-4 animate-in slide-in-from-top-2 fade-in">
+                     <div className={`mt-6 space-y-4 ${!sensorySafe && 'animate-in slide-in-from-top-2 fade-in'}`}>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className={`p-4 rounded-xl flex items-center gap-3 ${theme === 'dark' ? 'bg-amber-900/40' : 'bg-white'} border border-amber-500/20`}>
                                 <LifeBuoy size={20} className="text-amber-500" />
@@ -441,6 +449,7 @@ const ConcernModeDashboard: React.FC<{ result: AnalysisResult, nearbyPlaces?: Gr
                         text={reply} 
                         label={idx === 0 ? "Checking In" : (idx === 1 ? "Validation" : "Supportive")} 
                         theme={theme} 
+                        sensorySafe={sensorySafe}
                         />
                     ))}
                 </div>
@@ -454,10 +463,13 @@ interface InterpretationCardProps {
   label: string;
   confidence: string;
   theme: 'light' | 'dark';
+  sensorySafe?: boolean;
 }
 
-const InterpretationCard: React.FC<InterpretationCardProps> = ({ title, label, confidence, theme }) => {
-  const specificBg = theme === 'dark' ? 'bg-[#2C2C2C]' : 'bg-[#FFFCF6]'; 
+const InterpretationCard: React.FC<InterpretationCardProps> = ({ title, label, confidence, theme, sensorySafe }) => {
+  const specificBg = theme === 'dark' 
+    ? (sensorySafe ? 'bg-[#262626]' : 'bg-[#2C2C2C]') 
+    : (sensorySafe ? 'bg-[#EAE5D9]' : 'bg-[#FFFCF6]'); 
   const border = theme === 'dark' ? 'border-[#383838]' : 'border-stone-100';
   const textPrimary = theme === 'dark' ? 'text-white' : 'text-stone-900';
   const badgeBg = theme === 'dark' ? 'bg-white/5' : 'bg-stone-100/50';
@@ -482,12 +494,15 @@ interface ReplyCardProps {
   label: string;
   theme: 'light' | 'dark';
   compact?: boolean;
+  sensorySafe?: boolean;
 }
 
-const ReplyCard: React.FC<ReplyCardProps> = ({ text, label, theme, compact }) => {
+const ReplyCard: React.FC<ReplyCardProps> = ({ text, label, theme, compact, sensorySafe }) => {
   const [copied, setCopied] = useState(false);
   
-  const cardBg = theme === 'dark' ? 'bg-[#2C2C2C]' : 'bg-white';
+  const cardBg = theme === 'dark' 
+    ? (sensorySafe ? 'bg-[#262626]' : 'bg-[#2C2C2C]') 
+    : (sensorySafe ? 'bg-[#EAE5D9]' : 'bg-white');
   const border = theme === 'dark' ? 'border-[#383838]' : 'border-stone-200';
   const textPrimary = theme === 'dark' ? 'text-white' : 'text-stone-900';
 

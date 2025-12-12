@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronLeft, Globe, Check } from 'lucide-react';
+import { ChevronLeft, Globe, Check, Eye, Type, Sun, CloudOff } from 'lucide-react';
 import { Language } from '../types';
 
 interface HeaderProps {
@@ -9,6 +9,8 @@ interface HeaderProps {
   theme: 'light' | 'dark';
   language: Language;
   onLanguageChange: (lang: Language) => void;
+  accessibility: { dyslexic: boolean; sensorySafe: boolean };
+  onToggleAccessibility: (key: 'dyslexic' | 'sensorySafe') => void;
 }
 
 // Re-introducing the BrainLogo for shared use
@@ -45,8 +47,13 @@ export const BrainLogo = ({ size = 48, className = "" }: { size?: number, classN
   </svg>
 );
 
-const Header: React.FC<HeaderProps> = ({ view, onBack, theme, language, onLanguageChange }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  view, onBack, theme, language, onLanguageChange,
+  accessibility, onToggleAccessibility
+}) => {
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const [showAccessMenu, setShowAccessMenu] = useState(false);
+
   const textPrimary = theme === 'dark' ? 'text-white' : 'text-stone-900';
   const textSecondary = theme === 'dark' ? 'text-stone-400' : 'text-stone-600';
   const bg = theme === 'dark' ? 'bg-[#1E1E1E]' : 'bg-white';
@@ -85,9 +92,59 @@ const Header: React.FC<HeaderProps> = ({ view, onBack, theme, language, onLangua
          </div>
       </div>
 
-      {/* Right: Language + Auth Buttons */}
+      {/* Right: Language + Accessibility */}
       <div className="flex items-center justify-end gap-3 w-auto relative">
          
+         {/* Accessibility Menu */}
+         <div className="relative">
+            <button 
+              onClick={() => setShowAccessMenu(!showAccessMenu)}
+              className={`p-2 rounded-full transition-colors flex items-center gap-2 ${accessibility.sensorySafe ? 'bg-indigo-100 text-indigo-700' : (theme === 'dark' ? 'text-stone-300 hover:bg-[#383838]' : 'text-stone-600 hover:bg-stone-100')}`}
+              title="Accessibility Settings"
+            >
+              <Eye size={20} />
+            </button>
+
+            {showAccessMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowAccessMenu(false)}></div>
+                <div className={`absolute right-0 top-full mt-2 w-64 rounded-xl border shadow-xl z-50 overflow-hidden p-2 ${bg} ${border}`}>
+                   <div className="px-3 py-2 text-xs font-bold uppercase text-stone-400">Visual Support</div>
+                   
+                   <button
+                     onClick={() => onToggleAccessibility('dyslexic')}
+                     className={`w-full text-left px-3 py-3 rounded-lg text-sm flex items-center justify-between transition-colors mb-1 ${theme === 'dark' ? 'hover:bg-[#333] text-stone-200' : 'hover:bg-stone-50 text-stone-700'}`}
+                   >
+                     <span className="flex items-center gap-3">
+                       <Type size={16} />
+                       Dyslexia Font
+                     </span>
+                     <div className={`w-10 h-5 rounded-full relative transition-colors ${accessibility.dyslexic ? 'bg-indigo-500' : 'bg-stone-300'}`}>
+                        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${accessibility.dyslexic ? 'left-6' : 'left-1'}`}></div>
+                     </div>
+                   </button>
+
+                   <button
+                     onClick={() => onToggleAccessibility('sensorySafe')}
+                     className={`w-full text-left px-3 py-3 rounded-lg text-sm flex items-center justify-between transition-colors ${theme === 'dark' ? 'hover:bg-[#333] text-stone-200' : 'hover:bg-stone-50 text-stone-700'}`}
+                   >
+                     <span className="flex items-center gap-3">
+                       <CloudOff size={16} />
+                       Sensory Safe
+                     </span>
+                     <div className={`w-10 h-5 rounded-full relative transition-colors ${accessibility.sensorySafe ? 'bg-indigo-500' : 'bg-stone-300'}`}>
+                        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${accessibility.sensorySafe ? 'left-6' : 'left-1'}`}></div>
+                     </div>
+                   </button>
+                   
+                   <p className="px-3 py-2 text-[10px] text-stone-500 leading-tight">
+                     Sensory Safe removes images, reduces contrast, and simplifies the interface.
+                   </p>
+                </div>
+              </>
+            )}
+         </div>
+
          {/* Language Selector */}
          <div className="relative">
             <button 
@@ -117,11 +174,8 @@ const Header: React.FC<HeaderProps> = ({ view, onBack, theme, language, onLangua
             )}
          </div>
 
-         <button className={`text-sm md:text-base font-semibold px-4 py-2 rounded-xl transition-colors hidden md:block ${textSecondary} hover:text-indigo-500`}>
+         <button className={`hidden md:block text-sm font-semibold px-4 py-2 rounded-xl transition-colors ${textSecondary} hover:text-indigo-500`}>
            Log in
-         </button>
-         <button className={`text-sm md:text-base font-semibold px-5 py-2.5 rounded-full transition-colors shadow-sm hover:shadow-md hidden md:block ${theme === 'dark' ? 'bg-white text-black hover:bg-stone-200' : 'bg-black text-white hover:bg-stone-800'}`}>
-           Sign up
          </button>
       </div>
     </div>
