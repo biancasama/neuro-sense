@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AnalysisResult, RiskLevel } from '../types';
 import { Check, Copy, AlertTriangle, ShieldCheck, Zap, MessageSquare, BookOpen, Heart, Activity, Mic, Bookmark } from 'lucide-react';
@@ -27,7 +26,7 @@ const VibeCheckGauge: React.FC<{ level: RiskLevel, t: any, compact?: boolean }> 
   };
 
   return (
-    <div className={`bg-white rounded-2xl border border-stone-200 shadow-sm ${compact ? 'p-3' : 'p-5'}`}>
+    <div className={`bg-white rounded-2xl ${compact ? 'p-3' : 'p-5'} border border-stone-200 shadow-sm`}>
       <h3 className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-4 flex items-center gap-2">
         <Activity size={16} />
         {t.vibeCheck}
@@ -39,11 +38,10 @@ const VibeCheckGauge: React.FC<{ level: RiskLevel, t: any, compact?: boolean }> 
             key={l}
             className={`
               flex-1 rounded-xl border text-center transition-all duration-500 ease-out flex flex-col items-center gap-2
-              ${compact ? 'py-2 px-1' : 'py-4 px-2'}
               ${getStyles(l, level === l)}
+              ${compact ? 'py-2 px-1' : 'py-4 px-2'}
             `}
           >
-            {/* Conditional icon sizing for compact mode */}
             {l === RiskLevel.SAFE && <ShieldCheck size={compact ? 18 : 24} strokeWidth={level === l ? 2.5 : 1.5} />}
             {l === RiskLevel.CAUTION && <AlertTriangle size={compact ? 18 : 24} strokeWidth={level === l ? 2.5 : 1.5} />}
             {l === RiskLevel.CONFLICT && <Zap size={compact ? 18 : 24} strokeWidth={level === l ? 2.5 : 1.5} />}
@@ -98,7 +96,7 @@ const AnalysisDashboard: React.FC<Props> = ({ result, onSave, t, compact = false
   const theme = getRiskColors(result.riskLevel);
 
   return (
-    <div className={`w-full overflow-y-auto pr-2 custom-scrollbar ${compact ? 'space-y-4' : 'space-y-8'}`}>
+    <div className={`w-full space-y-8 overflow-y-auto ${compact ? '' : 'pr-2'} custom-scrollbar`}>
       
       {/* 0. Vibe Check Gauge */}
       <VibeCheckGauge level={result.riskLevel} t={t} compact={compact} />
@@ -109,33 +107,35 @@ const AnalysisDashboard: React.FC<Props> = ({ result, onSave, t, compact = false
           <BookOpen size={16} />
           {t.translation}
         </h3>
-        <p className={`text-stone-800 leading-relaxed font-medium ${compact ? 'text-base' : 'text-lg'}`}>
+        <p className={`text-stone-800 ${compact ? 'text-sm' : 'text-lg'} leading-relaxed font-medium`}>
           {result.literalMeaning}
         </p>
       </section>
 
       {/* 2. Emotional Subtext Section */}
-      <section className={`rounded-2xl border ${theme.bg} ${theme.border} backdrop-blur-sm ${compact ? 'p-4' : 'p-6'}`}>
+      <section className={`rounded-2xl ${compact ? 'p-4' : 'p-6'} border ${theme.bg} ${theme.border} backdrop-blur-sm`}>
         <div className="flex items-center justify-between mb-4">
            <h3 className={`text-sm font-bold uppercase tracking-wider ${theme.text} flex items-center gap-2`}>
             <Heart size={16} />
             {t.subtext}
           </h3>
           <div className="flex items-center gap-2 bg-white/40 px-3 py-1 rounded-full text-xs font-semibold shadow-sm backdrop-blur-md">
-             <span className="text-stone-600">{t.certainty}: {result.confidenceScore}%</span>
-             <div className="w-12 h-1.5 bg-stone-200 rounded-full overflow-hidden">
-                <div className={`h-full ${theme.barColor}`} style={{ width: `${result.confidenceScore}%` }}></div>
-             </div>
+             <span className="text-stone-600">{compact ? `${result.confidenceScore}%` : `${t.certainty}: ${result.confidenceScore}%`}</span>
+             {!compact && (
+               <div className="w-12 h-1.5 bg-stone-200 rounded-full overflow-hidden">
+                  <div className={`h-full ${theme.barColor}`} style={{ width: `${result.confidenceScore}%` }}></div>
+               </div>
+             )}
           </div>
         </div>
-        <p className={`${theme.text} text-base leading-relaxed`}>
+        <p className={`${theme.text} ${compact ? 'text-sm' : 'text-base'} leading-relaxed`}>
           {result.emotionalSubtext}
         </p>
       </section>
 
       {/* 2.5 Vocal Tone Section (Conditional) */}
       {result.vocalTone && !result.vocalTone.toLowerCase().includes("text only") && (
-        <section className={`bg-purple-50/50 rounded-2xl border border-purple-100 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-700 ${compact ? 'p-4' : 'p-6'}`}>
+        <section className={`bg-purple-50/50 rounded-2xl ${compact ? 'p-4' : 'p-6'} border border-purple-100 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-700`}>
            <h3 className="text-sm font-bold uppercase tracking-wider text-purple-900 flex items-center gap-2 mb-3">
             <Mic size={16} />
             {t.vocalToneLabel}
@@ -165,12 +165,11 @@ const AnalysisDashboard: React.FC<Props> = ({ result, onSave, t, compact = false
           onClick={handleSaveClick}
           disabled={isSaved}
           className={`
-            flex items-center gap-2 rounded-xl font-semibold transition-all shadow-sm
+            flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold transition-all shadow-sm
             ${isSaved 
               ? 'bg-emerald-100 text-emerald-700' 
               : 'bg-white border border-stone-300 text-stone-600 hover:bg-stone-50 hover:text-stone-800'
             }
-            ${compact ? 'px-4 py-2 text-sm' : 'px-6 py-2.5'}
           `}
         >
            {isSaved ? <Check size={18} /> : <Bookmark size={18} />}
@@ -192,8 +191,8 @@ const ReplyCard: React.FC<{ text: string, t: any, compact?: boolean }> = ({ text
   };
 
   return (
-    <div className={`bg-white rounded-xl border border-stone-200 hover:border-forest/30 hover:shadow-md transition-all group relative ${compact ? 'p-3' : 'p-5'}`}>
-      <p className={`text-stone-700 leading-relaxed mb-8 font-medium ${compact ? 'text-sm' : 'text-base'}`}>
+    <div className={`bg-white rounded-xl ${compact ? 'p-3' : 'p-5'} border border-stone-200 hover:border-forest/30 hover:shadow-md transition-all group relative`}>
+      <p className={`text-stone-700 ${compact ? 'text-sm' : 'text-base'} leading-relaxed mb-8 font-medium`}>
         "{text}"
       </p>
       <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
