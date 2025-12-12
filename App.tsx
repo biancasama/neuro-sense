@@ -6,7 +6,7 @@ import InputSection from './components/InputSection';
 import AnalysisDashboard from './components/AnalysisDashboard';
 import Header, { BrainLogo } from './components/Header';
 import { translations } from './utils/translations';
-import { Moon, Sun, ArrowRight, Youtube, Instagram, Twitter, Music } from 'lucide-react';
+import { Moon, Sun, ArrowRight, Youtube, Instagram, Twitter, Music, MessageCircle } from 'lucide-react';
 import { PhoneMockupIllustration } from './components/Illustrations';
 import BodyDoubleAvatar from './components/BodyDoubleAvatar';
 
@@ -293,6 +293,10 @@ const App: React.FC = () => {
             background-position: -200% center;
           }
         }
+        /* Smart Button Styles */
+        .btn-wa-active { display: none; }
+        body.extension-active .btn-default { display: none !important; }
+        body.extension-active .btn-wa-active { display: inline-flex !important; }
       `}</style>
       
       {/* Theme Toggle (Floating) */}
@@ -374,18 +378,39 @@ const App: React.FC = () => {
                         </div>
                     </div>
                     
-                    <button 
-                      onClick={scrollToDecode}
-                      className={`
-                        w-full md:w-auto md:px-12 py-4 md:py-5 rounded-2xl font-bold text-lg md:text-xl transition-all flex items-center justify-center gap-3
-                        ${accessibility.sensorySafe 
-                          ? 'bg-stone-600 text-white border border-stone-500 hover:bg-stone-700' 
-                          : 'bg-[#6366F1] hover:bg-[#5558DD] text-white shadow-lg shadow-indigo-500/30 transform hover:scale-[1.02]'
-                        }
-                      `}
-                    >
-                      {t.getStarted} <ArrowRight size={20} />
-                    </button>
+                    {/* SMART HERO BUTTON: Replaces default button if extension is active */}
+                    <div className="w-full md:w-auto">
+                        {/* State A: Default (Install / Get Started) */}
+                        <button 
+                          onClick={scrollToDecode}
+                          className={`
+                            btn-default
+                            w-full md:w-auto md:px-12 py-4 md:py-5 rounded-2xl font-bold text-lg md:text-xl transition-all flex items-center justify-center gap-3
+                            ${accessibility.sensorySafe 
+                              ? 'bg-stone-600 text-white border border-stone-500 hover:bg-stone-700' 
+                              : 'bg-[#6366F1] hover:bg-[#5558DD] text-white shadow-lg shadow-indigo-500/30 transform hover:scale-[1.02]'
+                            }
+                          `}
+                        >
+                          {t.getStarted} <ArrowRight size={20} />
+                        </button>
+
+                        {/* State B: Active (Open WhatsApp) - Hidden by default, revealed by CSS */}
+                        <a 
+                          href="https://web.whatsapp.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`
+                            btn-wa-active hidden
+                            w-full md:w-auto md:px-12 py-4 md:py-5 rounded-2xl font-bold text-lg md:text-xl transition-all items-center justify-center gap-3
+                            bg-[#25D366] hover:bg-[#1da851] text-white shadow-lg shadow-green-500/30 transform hover:scale-[1.02]
+                          `}
+                        >
+                          <MessageCircle size={24} />
+                          Open WhatsApp
+                        </a>
+                    </div>
+
                   </div>
 
                   {/* Hero Image Side - HIDDEN IN SENSORY MODE */}
