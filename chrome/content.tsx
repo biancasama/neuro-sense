@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import ExtensionOverlay from '../components/ExtensionOverlay';
+import { initializeFeatureInjection } from './featureInjector';
 
 declare var chrome: any;
 
@@ -8,9 +10,14 @@ declare var chrome: any;
 let isPrivacyMode = false;
 const processedNodes = new WeakSet<HTMLElement>();
 
-// Check initial privacy setting
+// Check initial privacy setting and Initialize
 chrome.storage.local.get(['isPrivacyMode'], (result: any) => {
   isPrivacyMode = result.isPrivacyMode || false;
+  
+  // Initialize the new Modular Features (Landing Page + Sidebar)
+  initializeFeatureInjection(isPrivacyMode);
+
+  // Initialize the existing Button Injection Logic
   if (!isPrivacyMode) startObserver();
 });
 
@@ -18,16 +25,19 @@ chrome.storage.local.get(['isPrivacyMode'], (result: any) => {
 chrome.storage.onChanged.addListener((changes: any) => {
   if (changes.isPrivacyMode) {
     isPrivacyMode = changes.isPrivacyMode.newValue;
+    // Reload page to apply changes cleanly or implement removal logic
     if (isPrivacyMode) {
-      // Logic to remove existing buttons could go here
       document.querySelectorAll('.neuro-interpreter-host').forEach(el => el.remove());
+      const sidebar = document.getElementById('neuro-sense-sidebar-root');
+      if (sidebar) sidebar.remove();
     } else {
       startObserver();
+      initializeFeatureInjection(false);
     }
   }
 });
 
-// --- Core Logic: Message Detection ---
+// --- Core Logic: Message Detection (Existing) ---
 
 function startObserver() {
   const observer = new MutationObserver((mutations) => {
@@ -48,15 +58,8 @@ function startObserver() {
 }
 
 function scanForMessages(root: HTMLElement) {
-  // Heuristic: We are looking for message bubbles.
-  // Instead of brittle class names, we look for structural patterns.
-  // 1. WhatsApp/Messenger/Insta bubbles usually contain text.
-  // 2. Incoming messages are typically aligned to the LEFT.
-  
-  // Strategy: Find leaf block elements with text content > 10 chars.
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
     acceptNode: (node) => {
-      // Skip our own injections
       if ((node as HTMLElement).classList.contains('neuro-interpreter-host')) return NodeFilter.FILTER_REJECT;
       return NodeFilter.FILTER_ACCEPT;
     }
@@ -64,8 +67,6 @@ function scanForMessages(root: HTMLElement) {
 
   while (walker.nextNode()) {
     const node = walker.currentNode as HTMLElement;
-    
-    // Check if node has already been processed
     if (processedNodes.has(node)) continue;
 
     if (isPotentialMessageBubble(node)) {
@@ -76,49 +77,34 @@ function scanForMessages(root: HTMLElement) {
 }
 
 function isPotentialMessageBubble(element: HTMLElement): boolean {
-  // 1. Must have text content
   const text = element.innerText.trim();
   if (text.length < 5) return false;
 
-  // 2. Ignore huge containers
   const rect = element.getBoundingClientRect();
   if (rect.height > 300 || rect.width > 600) return false;
 
-  // 3. Heuristic: Is it incoming? (Left side of screen)
-  // Most incoming messages start near the left edge (e.g. < 100px or < 30% width)
   const isLeftSide = rect.left < (window.innerWidth / 3);
   if (!isLeftSide) return false;
 
-  // 4. Platform specific tweaks (Optional, makes it more robust)
-  // WhatsApp incoming often has class `message-in` (but classes are obfuscated often)
-  // We rely mostly on geometry and lack of form inputs.
   if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA' || element.isContentEditable) return false;
 
-  // 5. Ensure it's a "leaf" or close to it (doesn't have many block children)
   const childBlockCount = Array.from(element.children).filter(c => getComputedStyle(c).display === 'block').length;
   if (childBlockCount > 2) return false;
 
   return true;
 }
 
-// --- Injection Logic ---
+// --- Injection Logic (Existing) ---
 
 function injectBananaButton(targetNode: HTMLElement) {
-  // Create a host for our Shadow DOM
   const host = document.createElement('div');
   host.className = 'neuro-interpreter-host';
   
-  // Position it relative to the target
-  // We'll append it to the target's parent to avoid messing up the target's layout flow usually
-  // Or append to target and use absolute positioning.
-  
-  // Safer approach for messaging apps: Append to target, position absolute top-right or next to it.
-  targetNode.style.position = 'relative'; // Ensure relative positioning context
+  targetNode.style.position = 'relative';
   targetNode.appendChild(host);
 
   const shadow = host.attachShadow({ mode: 'open' });
   
-  // Inject basic styles into Shadow DOM
   const style = document.createElement('style');
   style.textContent = `
     :host {
@@ -129,7 +115,7 @@ function injectBananaButton(targetNode: HTMLElement) {
       font-family: sans-serif;
     }
     .banana-btn {
-      background: #F0EAD6; /* Cream */
+      background: #F0EAD6;
       border: 1px solid #A3BFa3;
       border-radius: 50%;
       width: 28px;
@@ -157,8 +143,6 @@ function injectBananaButton(targetNode: HTMLElement) {
   root.render(<InjectedComponent targetNode={targetNode} />);
 }
 
-// --- React Component inside Shadow DOM ---
-
 const InjectedComponent: React.FC<{ targetNode: HTMLElement }> = ({ targetNode }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   
@@ -174,7 +158,6 @@ const InjectedComponent: React.FC<{ targetNode: HTMLElement }> = ({ targetNode }
     <>
       {!isOpen && (
         <button className="banana-btn" onClick={handleAnalyze} title="Decode Tone">
-           {/* Simple Brain Icon SVG */}
            <svg className="banana-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
               <path d="M40 75 C 40 88 45 92 50 92 C 55 92 60 88 60 75" fill="#A1C9F2"/>
               <path d="M 48 30 C 38 12 12 28 15 50 C 18 72 32 82 48 72 Z" fill="#A3BFa3"/>

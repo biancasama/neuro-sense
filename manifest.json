@@ -1,3 +1,4 @@
+
 {
   "manifest_version": 3,
   "name": "Neuro-Sense: Context Decoder",
@@ -12,7 +13,9 @@
     "https://web.whatsapp.com/*",
     "https://www.instagram.com/*",
     "https://www.messenger.com/*",
-    "https://generativelanguage.googleapis.com/*"
+    "https://generativelanguage.googleapis.com/*",
+    "*://*.neuro-sense.com/*",
+    "http://localhost/*"
   ],
   "background": {
     "service_worker": "chrome/background.ts",
@@ -23,14 +26,16 @@
       "matches": [
         "https://web.whatsapp.com/*",
         "https://www.instagram.com/*",
-        "https://www.messenger.com/*"
+        "https://www.messenger.com/*",
+        "*://*.neuro-sense.com/*",
+        "http://localhost/*"
       ],
       "js": ["chrome/content.tsx"],
       "run_at": "document_idle"
     }
   ],
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "chrome/popup.html",
     "default_title": "Neuro-Sense Settings"
   },
   "web_accessible_resources": [
