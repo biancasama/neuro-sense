@@ -1,14 +1,16 @@
 
-import React, { useState, useRef } from 'react';
-import { Image as ImageIcon, FileText, Mic, X, Loader2, Upload, StopCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Image as ImageIcon, FileText, Mic, X, Loader2, Upload, StopCircle, Globe } from 'lucide-react';
 import { fileToGenerativePart } from '../services/geminiService';
 
 interface InputSectionProps {
-  onAnalyze: (text: string, useDeepContext: boolean, imageBase64?: string, imageMimeType?: string, audioBase64?: string, audioMimeType?: string) => void;
+  onAnalyze: (text: string, useDeepContext: boolean, imageBase64?: string, imageMimeType?: string, audioBase64?: string, audioMimeType?: string, voiceAccent?: string) => void;
   isAnalyzing: boolean;
   t: any;
   theme: 'light' | 'dark';
 }
+
+const ACCENTS = ["Neutral", "American", "British", "Australian", "Indian", "Irish", "Scottish", "South African", "Canadian"];
 
 const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, theme }) => {
   const [mode, setMode] = useState<'selection' | 'text' | 'image' | 'audio'>('selection');
@@ -28,6 +30,23 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
   
   // Plain Language Mode State
   const [plainMode, setPlainMode] = useState(true);
+
+  // Voice Accent State
+  const [voiceAccent, setVoiceAccent] = useState('Neutral');
+
+  // Load Accent from LocalStorage
+  useEffect(() => {
+    const savedAccent = localStorage.getItem('ns_voice_accent');
+    if (savedAccent) {
+      setVoiceAccent(savedAccent);
+    }
+  }, []);
+
+  const handleAccentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newAccent = e.target.value;
+    setVoiceAccent(newAccent);
+    localStorage.setItem('ns_voice_accent', newAccent);
+  };
 
   // Styles based on theme
   const buttonBase = `
@@ -141,7 +160,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
       });
     }
 
-    onAnalyze(text, false, imgBase64, imgMimeType, audioBase64, audioMimeType);
+    onAnalyze(text, false, imgBase64, imgMimeType, audioBase64, audioMimeType, voiceAccent);
   };
 
   // --- Render Modes ---
@@ -238,7 +257,19 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
           />
 
           {/* Microphone Trigger / status */}
-          <div className="absolute bottom-6 right-6 flex items-center gap-3">
+          <div className="absolute bottom-6 right-6 flex flex-col items-end gap-3">
+             {/* Accent Selector (Near Mic) */}
+             <div className={`flex items-center gap-2 p-2 rounded-xl transition-all ${theme === 'dark' ? 'bg-[#383838]' : 'bg-white border border-stone-200 shadow-sm'}`}>
+                <Globe size={16} className={theme === 'dark' ? 'text-stone-400' : 'text-stone-500'} />
+                <select 
+                  value={voiceAccent}
+                  onChange={handleAccentChange}
+                  className={`bg-transparent text-sm font-medium outline-none cursor-pointer ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}
+                >
+                  {ACCENTS.map(a => <option key={a} value={a}>{a}</option>)}
+                </select>
+             </div>
+
             {recordedAudio && !isRecording && (
                <div className="px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold flex items-center gap-2">
                  Audio Attached <X size={14} className="cursor-pointer hover:scale-110" onClick={() => setRecordedAudio(null)}/>
@@ -317,6 +348,19 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
             </div>
             <p className={`font-bold text-xl ${textPrimary} mb-2`}>{selectedFile.name}</p>
             <p className={`text-base ${textSecondary}`}>{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+         
+            {/* Accent Selector for Audio File */}
+             <div className={`mt-4 flex items-center gap-2 p-2 rounded-xl transition-all ${theme === 'dark' ? 'bg-[#383838]' : 'bg-white border border-stone-200 shadow-sm'}`}>
+                <Globe size={16} className={theme === 'dark' ? 'text-stone-400' : 'text-stone-500'} />
+                <span className={`text-sm ${textSecondary} mr-2`}>Accent:</span>
+                <select 
+                  value={voiceAccent}
+                  onChange={handleAccentChange}
+                  className={`bg-transparent text-sm font-medium outline-none cursor-pointer ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}
+                >
+                  {ACCENTS.map(a => <option key={a} value={a}>{a}</option>)}
+                </select>
+             </div>
          </div>
 
          <div className="flex gap-4">

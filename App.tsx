@@ -125,7 +125,8 @@ const App: React.FC = () => {
     imageBase64?: string, 
     imageMimeType?: string,
     audioBase64?: string,
-    audioMimeType?: string
+    audioMimeType?: string,
+    voiceAccent?: string
   ) => {
     setIsAnalyzing(true);
     setError(null);
@@ -148,7 +149,8 @@ const App: React.FC = () => {
         imageBase64, 
         imageMimeType,
         audioBase64, 
-        audioMimeType
+        audioMimeType,
+        voiceAccent
       );
       setResult(data);
     } catch (err: any) {

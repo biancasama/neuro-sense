@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { AnalysisResult, RiskLevel } from "../types";
 
@@ -93,7 +94,8 @@ export const analyzeMessageContext = async (
   imageBase64?: string,
   imageMimeType: string = "image/png",
   audioBase64?: string,
-  audioMimeType: string = "audio/webm"
+  audioMimeType: string = "audio/webm",
+  voiceAccent?: string
 ): Promise<AnalysisResult> => {
   
   if (!process.env.API_KEY) {
@@ -122,11 +124,14 @@ export const analyzeMessageContext = async (
     });
   }
 
-  if (text) {
-    parts.push({
-      text: `Analyze this communication. Text content: "${text}". \n\nIMPORTANT: Provide the analysis (Literal Meaning, Emotional Subtext, Vocal Tone, and Suggested Responses) in ${targetLanguage} language.`
-    });
+  let promptText = `Analyze this communication. Text content: "${text}".`;
+  if (audioBase64 && voiceAccent && voiceAccent !== 'Neutral') {
+    promptText += `\n\nContext: The speaker in the audio has a ${voiceAccent} accent.`;
   }
+  promptText += `\n\nIMPORTANT: Provide the analysis (Literal Meaning, Emotional Subtext, Vocal Tone, and Suggested Responses) in ${targetLanguage} language.`;
+
+  // Always push text part
+  parts.push({ text: promptText });
 
   if (parts.length === 0) {
     throw new Error("No input provided.");
