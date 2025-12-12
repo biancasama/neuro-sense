@@ -52,10 +52,7 @@ function handleUrlChangeOrDomUpdate() {
     window.location.hostname.includes('instagram') && 
     window.location.pathname.includes('/direct/t/'); // URL pattern is safer than classes for IG
 
-  const isMessengerChatOpen = 
-     window.location.hostname.includes('messenger');
-
-  if (isWhatsAppChatOpen || isInstagramChatOpen || isMessengerChatOpen) {
+  if (isWhatsAppChatOpen || isInstagramChatOpen) {
     injectSidebarOverlay();
   }
 }
@@ -74,9 +71,9 @@ function injectSidebarOverlay() {
     top: '0',
     right: '0',
     height: '100vh',
-    width: '0px', // Host has no width so it doesn't block clicks
+    width: '0px', // Start collapsed or use a toggle
     zIndex: '9999',
-    pointerEvents: 'none'
+    pointerEvents: 'none' // Let clicks pass through when collapsed
   });
 
   document.body.appendChild(host);
@@ -96,17 +93,16 @@ function injectSidebarOverlay() {
       background: white;
       box-shadow: -5px 0 15px rgba(0,0,0,0.1);
       position: absolute;
+      right: 0;
       top: 0;
-      /* Fix: Start off-screen to the right, but keep button visible */
-      right: -320px; 
       pointer-events: auto;
       display: flex;
       flex-direction: column;
-      transform: translateX(0);
+      transform: translateX(100%); /* Hidden by default */
       transition: transform 0.3s ease;
     }
     .sidebar-container.open {
-      transform: translateX(-320px); /* Move left to reveal */
+      transform: translateX(0);
     }
     .sidebar-toggle {
       position: absolute;
@@ -137,36 +133,17 @@ function injectSidebarOverlay() {
 const SidebarWrapper: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  // Re-use RightDecoder Logic but wrap it
-  // We mock the props needed for RightDecoder since we are in injection mode
-  // In a real app, these would come from a context or storage
-  const mockProps = {
-     onAnalyze: async (text: string) => { console.log("Analyzing:", text); },
-     isAnalyzing: false,
-     result: null,
-     onSaveMemory: () => {},
-     t: { // Minimal translations needed for initial render
-        memoriesTitle: "Memories",
-        subtext: "Subtext",
-        delete: "Delete",
-        noMemories: "No memories",
-        backBtn: "Back",
-        analyzeText: "Analyze",
-        analyzeAudioText: "Analyze Audio",
-        inputPlaceholder: "Paste text..."
-     }
-  };
-
   return React.createElement('div', { className: `sidebar-container ${isOpen ? 'open' : ''}` },
     React.createElement('button', {
       className: 'sidebar-toggle',
       onClick: () => setIsOpen(!isOpen),
       title: 'Toggle Neuro-Sense'
     }, '🧠'),
-    
-    // Mount the Full Decoder UI inside the sidebar
-    React.createElement('div', { style: { height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' } },
-        React.createElement(RightDecoder, { ...mockProps })
+    isOpen && React.createElement('div', { style: { height: '100%', overflow: 'hidden' } },
+      React.createElement('div', { className: 'p-4 h-full flex flex-col items-center justify-center text-stone-500' },
+        React.createElement('h2', { className: 'font-bold text-lg mb-2' }, 'Neuro-Sense'),
+        React.createElement('p', { className: 'text-sm text-center' }, 'Drag and drop screenshots here or click specific messages to decode.')
+      )
     )
   );
 };
