@@ -168,7 +168,7 @@ export const analyzeMessageContext = async (
 
     // Only add thinking config if using Gemini 3 Pro
     if (useDeepContext) {
-      config.thinkingConfig = { thinkingBudget: 2048 };
+      config.thinkingConfig = { thinkingBudget: 32768 };
     }
 
     const response = await ai.models.generateContent({

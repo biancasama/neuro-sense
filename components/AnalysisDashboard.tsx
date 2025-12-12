@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { AnalysisResult, RiskLevel } from '../types';
-import { Copy, Check, Mic } from 'lucide-react';
+import { Copy, Check, Mic, ShieldCheck, AlertTriangle, Zap } from 'lucide-react';
 
 interface Props {
   result: AnalysisResult | null;
@@ -22,12 +22,64 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
   // Check if vocal tone is meaningful (not just text fallback)
   const hasVocalAnalysis = result.vocalTone && !result.vocalTone.toLowerCase().includes("text only");
 
+  // Vibe Check Colors & Icon
+  const getVibeConfig = (level: string) => {
+    switch (level) {
+      case 'Safe': 
+        return {
+          bg: theme === 'dark' ? 'bg-emerald-900/30' : 'bg-green-100',
+          text: theme === 'dark' ? 'text-emerald-300' : 'text-green-800',
+          border: theme === 'dark' ? 'border-emerald-500/30' : 'border-green-200',
+          icon: <ShieldCheck size={28} className={theme === 'dark' ? 'text-emerald-400' : 'text-green-600'} />,
+          label: "Safe"
+        };
+      case 'Caution': 
+        return {
+          bg: theme === 'dark' ? 'bg-amber-900/30' : 'bg-yellow-100',
+          text: theme === 'dark' ? 'text-amber-300' : 'text-yellow-800',
+          border: theme === 'dark' ? 'border-amber-500/30' : 'border-yellow-200',
+          icon: <AlertTriangle size={28} className={theme === 'dark' ? 'text-amber-400' : 'text-yellow-600'} />,
+          label: "Caution"
+        };
+      case 'Conflict': 
+        return {
+          bg: theme === 'dark' ? 'bg-rose-900/30' : 'bg-red-100',
+          text: theme === 'dark' ? 'text-rose-300' : 'text-red-800',
+          border: theme === 'dark' ? 'border-rose-500/30' : 'border-red-200',
+          icon: <Zap size={28} className={theme === 'dark' ? 'text-rose-400' : 'text-red-600'} />,
+          label: "Conflict"
+        };
+      default: 
+        return {
+          bg: 'bg-stone-100', text: 'text-stone-800', border: 'border-stone-200',
+          icon: <ShieldCheck size={28} />, label: "Unknown"
+        };
+    }
+  };
+
+  const vibe = getVibeConfig(result.riskLevel);
+
   return (
     <div className="space-y-12 pb-12">
       
       {/* SECTION 1: INTERPRETATIONS */}
       <div>
         <h2 className={`text-3xl md:text-4xl font-bold mb-8 ${textPrimary}`}>Interpretations</h2>
+        
+        {/* VIBE CHECK (Risk Assessment) */}
+        <div className={`mb-8 p-6 rounded-3xl border flex items-center gap-6 ${vibe.bg} ${vibe.border}`}>
+            <div className={`p-4 rounded-full bg-white/50 backdrop-blur-sm shadow-sm`}>
+              {vibe.icon}
+            </div>
+            <div>
+               <h3 className={`text-xs font-bold uppercase tracking-wider mb-1 opacity-80 ${vibe.text}`}>
+                 {t.vibeCheck || "Vibe Check"}
+               </h3>
+               <p className={`text-2xl font-bold ${vibe.text}`}>
+                 {vibe.label} <span className="text-base font-normal opacity-75">({result.confidenceScore}% Certainty)</span>
+               </p>
+            </div>
+        </div>
         
         {/* Vocal Tone Section (Conditional) */}
         {hasVocalAnalysis && (
@@ -53,11 +105,11 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
         </div>
 
         {/* Possible Interpretations List */}
-        <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 md:gap-6">
-          <div className="md:col-span-2 mb-2 md:mb-0">
+        <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-1 md:gap-6">
+           <div className="mb-2 md:mb-0">
              <h3 className={`text-sm font-bold uppercase tracking-wide mb-4 ${textSecondary}`}>Key Signals</h3>
-          </div>
-          
+           </div>
+           
            {/* Card 1: Literal */}
            <InterpretationCard 
             title={result.literalMeaning} 
@@ -66,13 +118,6 @@ const AnalysisDashboard: React.FC<Props> = ({ result, theme, compact, t }) => {
             theme={theme}
           />
           
-          {/* Card 2: Risk Level */}
-          <InterpretationCard 
-            title={result.riskLevel === 'Safe' ? 'Safe to reply' : (result.riskLevel === 'Caution' ? 'Proceed with caution' : 'Conflict detected')} 
-            label="Risk Assessment"
-            confidence={`${result.confidenceScore}%`} 
-            theme={theme}
-          />
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Image as ImageIcon, FileText, Mic, X, Loader2, Upload, StopCircle, Globe } from 'lucide-react';
+import { Image as ImageIcon, FileText, Mic, X, Loader2, Upload, StopCircle, Globe, BrainCircuit } from 'lucide-react';
 import { fileToGenerativePart } from '../services/geminiService';
 
 interface InputSectionProps {
@@ -15,6 +15,9 @@ const ACCENTS = ["Neutral", "American", "British", "Australian", "Indian", "Iris
 const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, theme }) => {
   const [mode, setMode] = useState<'selection' | 'text' | 'image' | 'audio'>('selection');
   const [text, setText] = useState('');
+  
+  // Deep Thinking Mode
+  const [useThinking, setUseThinking] = useState(false);
   
   // File State
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -160,8 +163,37 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
       });
     }
 
-    onAnalyze(text, false, imgBase64, imgMimeType, audioBase64, audioMimeType, voiceAccent);
+    onAnalyze(text, useThinking, imgBase64, imgMimeType, audioBase64, audioMimeType, voiceAccent);
   };
+
+  // Thinking Mode Toggle Component
+  const ThinkingToggle = () => (
+    <div 
+      onClick={() => setUseThinking(!useThinking)}
+      className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border ${
+        useThinking 
+          ? (theme === 'dark' ? 'bg-indigo-900/20 border-indigo-500/50' : 'bg-indigo-50 border-indigo-200')
+          : (theme === 'dark' ? 'bg-[#383838] border-transparent' : 'bg-white border-stone-200')
+      } mb-6`}
+    >
+       <div className={`p-2 rounded-full transition-colors ${
+         useThinking ? 'bg-indigo-500 text-white' : 'bg-stone-200 text-stone-500'
+       }`}>
+         <BrainCircuit size={18} />
+       </div>
+       <div className="flex flex-col">
+         <span className={`text-sm font-bold ${textPrimary}`}>Thinking Mode</span>
+         <span className="text-xs text-stone-500">Deep analysis for complex nuance (Slower)</span>
+       </div>
+       <div className={`ml-auto w-10 h-6 rounded-full relative transition-colors ${
+          useThinking ? 'bg-indigo-500' : 'bg-stone-300'
+       }`}>
+         <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${
+           useThinking ? 'right-1' : 'left-1'
+         }`}></div>
+       </div>
+    </div>
+  );
 
   // --- Render Modes ---
 
@@ -296,6 +328,8 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
           </div>
         </div>
 
+        <ThinkingToggle />
+
         <div className="flex gap-4">
           <button 
             onClick={resetSelection}
@@ -328,6 +362,9 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
             <X size={24} />
           </button>
         </div>
+        
+        <ThinkingToggle />
+
         <button
           onClick={handleSubmit}
           className="w-full py-5 rounded-2xl bg-[#6366F1] hover:bg-[#5558DD] text-white font-bold text-xl shadow-xl transition-all"
@@ -362,6 +399,8 @@ const InputSection: React.FC<InputSectionProps> = ({ onAnalyze, isAnalyzing, t, 
                 </select>
              </div>
          </div>
+
+         <ThinkingToggle />
 
          <div className="flex gap-4">
           <button 
